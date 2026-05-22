@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0a0e1a"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="EMR Portal"/>
+<link rel="manifest" id="pwa-manifest"/>
+<title>EMR Portal — Bigben Group</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+/* ── THEME VARIABLES ── */
+:root{
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;--bg4:#222d42;--bg5:#2d3a52;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --text:#eef2ff;--text2:#8b95b0;--text3:#4a5568;
+  --accent:#3b82f6;--accent2:#60a5fa;--accentbg:rgba(59,130,246,0.12);
+  --green:#10b981;--green2:#34d399;--greenbg:rgba(16,185,129,0.12);
+  --amber:#f59e0b;--amberbg:rgba(245,158,11,0.12);
+  --red:#ef4444;--redbg:rgba(239,68,68,0.12);
+  --purple:#8b5cf6;--purplebg:rgba(139,92,246,0.12);
+  --teal:#14b8a6;--tealbg:rgba(20,184,166,0.12);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:12px;--rs:8px;--sw:230px;
+  --fs:14px;
+}
+body.light-mode{
+  --bg:#f0f4ff;--bg2:#ffffff;--bg3:#f5f7ff;--bg4:#e8ecf8;--bg5:#dde3f5;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.13);
+  --text:#0d1117;--text2:#4a5568;--text3:#9aa5b4;
+}
+body.font-sm{--fs:12px;}
+body.font-lg{--fs:16px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:var(--fs);overflow:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
+input,textarea,select,button{font-family:var(--font);font-size:var(--fs);}
+/* ── OVERLAYS & MODALS ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;display:none;align-items:center;justify-content:center;padding:16px;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:24px;width:500px;max-width:100%;max-height:90vh;overflow-y:auto;}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.modal-title i{color:var(--accent);}
+.form-row{margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:4px;display:block;}
+.form-input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:8px 11px;color:var(--text);font-size:var(--fs);outline:none;transition:border 0.2s;}
+.form-input:focus{border-color:var(--accent);}
+.form-input::placeholder{color:var(--text3);}
+select.form-input option{background:var(--bg3);color:var(--text);}
+.btn{border:none;border-radius:var(--rs);padding:8px 16px;font-size:var(--fs);font-weight:500;cursor:pointer;transition:opacity 0.2s;display:inline-flex;align-items:center;gap:6px;}
+.btn:hover{opacity:0.85;}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.btn-row{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500;}
+.badge-blue{background:var(--accentbg);color:var(--accent2);}
+.badge-green{background:var(--greenbg);color:var(--green2);}
+.badge-amber{background:var(--amberbg);color:var(--amber);}
+.badge-red{background:var(--redbg);color:var(--red);}
+.badge-purple{background:var(--purplebg);color:var(--purple);}
+.badge-teal{background:var(--tealbg);color:var(--teal);}
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;background-image:radial-gradient(ellipse at 15% 50%,rgba(59,130,246,0.1) 0%,transparent 55%),radial-gradient(ellipse at 85% 20%,rgba(139,92,246,0.07) 0%,transparent 50%);}
+.auth-card{width:420px;max-width:95vw;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:32px;}
+.auth-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.auth-logo-icon{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;color:#fff;}
+.auth-app-name{font-size:20px;font-weight:600;letter-spacing:-0.5px;}
+.auth-app-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.auth-tabs{display:flex;gap:3px;background:var(--bg3);border-radius:var(--rs);padding:4px;margin-bottom:20px;}
+.auth-tab{flex:1;padding:7px;text-align:center;border-radius:6px;font-size:12px;cursor:pointer;color:var(--text2);transition:all 0.18s;}
+.auth-tab.active{background:var(--bg4);color:var(--text);font-weight:500;}
+.auth-error{background:var(--redbg);border:1px solid rgba(239,68,68,0.3);border-radius:var(--rs);padding:9px 12px;font-size:12px;color:var(--red);margin-bottom:12px;display:none;}
+.auth-error.show{display:block;}
+/* ── APP LAYOUT ── */
+#app{display:none;height:100vh;flex-direction:column;}
+#app.show{display:flex;}
+/* ── TOPBAR ── */
+.topbar{height:50px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 12px;gap:8px;flex-shrink:0;z-index:200;}
+.topbar-brand{display:flex;align-items:center;gap:8px;}
+.topbar-brand-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;flex-shrink:0;}
+.topbar-brand-name{font-size:13px;font-weight:600;letter-spacing:-0.3px;white-space:nowrap;}
+.topbar-sep{width:1px;height:18px;background:var(--border2);flex-shrink:0;}
+.topbar-clock{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg3);padding:3px 8px;border-radius:20px;border:1px solid var(--border);white-space:nowrap;flex-shrink:0;}
+.topbar-weather{font-size:12px;color:var(--text2);display:flex;align-items:center;gap:4px;cursor:pointer;flex-shrink:0;}
+.topbar-weather i{color:var(--amber);}
+.topbar-quote{flex:1;font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;}
+.topbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.topbar-icon-btn{width:30px;height:30px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--text2);position:relative;flex-shrink:0;}
+.topbar-icon-btn:hover{background:var(--bg4);}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--red);border-radius:50%;border:2px solid var(--bg2);display:none;}
+.topbar-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;cursor:pointer;border:2px solid var(--border2);flex-shrink:0;}
+/* ── NOTIF PANEL ── */
+.notif-panel{position:absolute;top:52px;right:8px;width:300px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);z-index:400;max-height:380px;overflow-y:auto;display:none;box-shadow:0 8px 32px rgba(0,0,0,0.3);}
+.notif-panel.open{display:block;}
+.notif-panel-header{padding:11px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--bg2);}
+.notif-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;}
+.notif-item:hover{background:var(--bg3);}
+.notif-item.unread{background:var(--bg3);}
+.notif-item-title{font-size:12px;font-weight:500;}
+.notif-item-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+/* ── APP BODY ── */
+.app-body{display:flex;flex:1;overflow:hidden;}
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-section{padding:14px 10px 5px;font-size:9px;font-weight:600;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:var(--rs);margin:1px 6px;cursor:pointer;color:var(--text2);font-size:13px;transition:all 0.15s;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--accentbg);color:var(--accent2);}
+.nav-item i{width:15px;font-size:13px;text-align:center;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;display:none;}
+.sidebar-footer{margin-top:auto;padding:10px;border-top:1px solid var(--border);}
+.online-indicator{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:var(--rs);background:var(--bg3);}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+.online-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.online-role{font-size:10px;color:var(--text2);}
+/* ── MAIN CONTENT ── */
+.main-content{flex:1;overflow-y:auto;padding:18px;display:none;}
+.main-content.active{display:block;}
+.page-header{margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.page-title{font-size:19px;font-weight:600;letter-spacing:-0.5px;}
+.page-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+/* ── PINNED BANNER ── */
+#pinned-banner{background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(239,68,68,0.1));border:1px solid rgba(245,158,11,0.3);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:none;align-items:center;gap:10px;}
+#pinned-banner.show{display:flex;}
+#pinned-banner i{color:var(--amber);font-size:15px;flex-shrink:0;}
+#pinned-banner-text{flex:1;font-size:12px;font-weight:500;}
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.card-header{padding:12px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;}
+.card-title i{color:var(--accent);font-size:13px;}
+.card-action{font-size:11px;color:var(--accent2);cursor:pointer;display:flex;align-items:center;gap:4px;}
+.card-body{padding:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+/* ── WEATHER ── */
+.weather-big{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.weather-temp-big{font-size:40px;font-weight:300;letter-spacing:-2px;}
+.weather-desc{font-size:12px;color:var(--text2);}
+.weather-loc{font-size:11px;color:var(--text3);margin-top:2px;}
+.weather-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px;}
+.weather-cell{background:var(--bg3);border-radius:var(--rs);padding:7px;text-align:center;}
+.weather-cell-val{font-size:12px;font-weight:500;}
+.weather-cell-lbl{font-size:10px;color:var(--text2);margin-top:1px;}
+.forecast-row{display:flex;gap:5px;}
+.forecast-day{flex:1;background:var(--bg3);border-radius:var(--rs);padding:6px;text-align:center;}
+.fd-day{font-size:10px;color:var(--text2);}
+.fd-icon{font-size:18px;margin:3px 0;}
+.fd-temp{font-size:11px;font-weight:500;}
+.weather-loc-tabs{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+.weather-loc-tab{padding:4px 12px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--text2);border:1px solid var(--border);transition:all 0.15s;}
+.weather-loc-tab.active{background:var(--accentbg);color:var(--accent2);border-color:var(--accent);}
+/* ── MEMOS ── */
+.search-bar{display:flex;gap:7px;margin-bottom:12px;}
+.search-bar .form-input{flex:1;}
+.filter-pills{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+.filter-pill{padding:4px 11px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--text2);border:1px solid var(--border);transition:all 0.15s;}
+.filter-pill.active{background:var(--accentbg);color:var(--accent2);border-color:var(--accent);}
+.memo-item{background:var(--bg3);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;border-left:3px solid var(--border2);cursor:pointer;transition:border-color 0.2s;}
+.memo-item:hover{border-left-color:var(--accent);}
+.memo-item.pinned{border-left-color:var(--amber);}
+.memo-item.urgent{border-left-color:var(--red);}
+.memo-item.info{border-left-color:var(--accent);}
+.memo-top{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
+.memo-title-text{font-size:12px;font-weight:500;flex:1;}
+.memo-meta{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.memo-ack{margin-top:8px;display:flex;align-items:center;gap:8px;}
+.memo-reactions{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.reaction-btn{padding:2px 8px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--bg4);border:1px solid var(--border);transition:all 0.15s;display:flex;align-items:center;gap:3px;}
+.reaction-btn:hover,.reaction-btn.reacted{background:var(--accentbg);border-color:var(--accent);}
+.ack-btn{padding:4px 11px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--greenbg);color:var(--green2);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;gap:4px;}
+.ack-btn.acked{background:var(--bg4);color:var(--text3);cursor:default;}
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cal-nav-btn{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);}
+.cal-month-name{font-size:13px;font-weight:500;}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px;}
+.cal-dow-cell{text-align:center;font-size:10px;color:var(--text3);padding:3px 0;font-weight:500;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.cal-cell{min-height:36px;border-radius:var(--rs);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:4px 2px;font-size:11px;color:var(--text2);cursor:pointer;position:relative;}
+.cal-cell:hover{background:var(--bg4);}
+.cal-cell.today{background:var(--accent);color:#fff;font-weight:600;}
+.cal-cell.other-month{color:var(--text3);}
+.cal-cell.ph-holiday{background:var(--amberbg);}
+.cal-cell .evt-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px;}
+.cal-cell .evt-dot{width:5px;height:5px;border-radius:50%;}
+.cal-legend{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.cal-legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2);}
+.cal-legend-dot{width:8px;height:8px;border-radius:50%;}
+.event-item{display:flex;align-items:center;gap:9px;padding:7px 11px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px;}
+.event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.event-name{font-size:12px;font-weight:500;flex:1;}
+.event-time{font-size:10px;color:var(--text2);}
+/* ── QUICK LINKS ── */
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.link-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:8px;position:relative;}
+.link-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.link-card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;}
+.link-card-name{font-size:12px;font-weight:600;}
+.link-card-sub{font-size:11px;color:var(--text2);}
+.link-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;}
+.link-health{width:7px;height:7px;border-radius:50%;}
+.link-health.up{background:var(--green);}
+.link-health.checking{background:var(--amber);}
+.cat-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 7px;padding-left:2px;}
+/* ── CHAT ── */
+.chat-layout{display:flex;height:100%;gap:0;}
+.chat-sidebar{width:200px;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.chat-section-title{padding:10px 12px 4px;font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+.chat-room-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;transition:background 0.15s;position:relative;}
+.chat-room-item:hover,.chat-room-item.active{background:var(--bg3);}
+.chat-room-icon{width:30px;height:30px;border-radius:50%;background:var(--accentbg);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--accent2);flex-shrink:0;}
+.chat-room-name{font-size:12px;font-weight:500;flex:1;}
+.chat-room-last{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;}
+.chat-unread{background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-left:auto;flex-shrink:0;}
+.chat-main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.chat-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.chat-header-name{font-size:13px;font-weight:600;}
+.chat-header-sub{font-size:11px;color:var(--text2);}
+.chat-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.chat-date-divider{text-align:center;font-size:10px;color:var(--text3);margin:8px 0;position:relative;}
+.chat-date-divider::before,.chat-date-divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--border);}
+.chat-date-divider::before{left:0;}
+.chat-date-divider::after{right:0;}
+.chat-msg{display:flex;gap:7px;align-items:flex-end;max-width:100%;}
+.chat-msg.mine{flex-direction:row-reverse;}
+.chat-avatar{width:26px;height:26px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--text2);}
+.chat-msg-wrap{display:flex;flex-direction:column;max-width:68%;}
+.chat-msg.mine .chat-msg-wrap{align-items:flex-end;}
+.chat-bubble-name{font-size:10px;color:var(--text2);margin-bottom:2px;font-weight:500;}
+.chat-bubble{background:var(--bg3);border-radius:14px 14px 14px 4px;padding:8px 11px;font-size:13px;line-height:1.5;word-wrap:break-word;word-break:break-word;white-space:pre-wrap;position:relative;}
+.chat-msg.mine .chat-bubble{background:var(--accent);color:#fff;border-radius:14px 14px 4px 14px;}
+.chat-bubble-meta{display:flex;align-items:center;gap:5px;margin-top:3px;justify-content:flex-end;}
+.chat-bubble-time{font-size:10px;color:var(--text3);}
+.chat-msg.mine .chat-bubble-time{color:rgba(255,255,255,0.6);}
+.chat-read-receipt{font-size:10px;color:var(--accent2);}
+.chat-msg-actions{display:none;position:absolute;top:-28px;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--rs);padding:3px;display:none;gap:4px;z-index:10;}
+.chat-bubble:hover .chat-msg-actions{display:flex;}
+.chat-msg-action-btn{width:24px;height:24px;border-radius:5px;background:transparent;border:none;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.chat-msg-action-btn:hover{background:var(--bg3);}
+.pinned-msg-bar{background:var(--bg3);border-bottom:1px solid var(--border);padding:7px 14px;font-size:11px;color:var(--text2);display:none;align-items:center;gap:7px;}
+.pinned-msg-bar.show{display:flex;}
+.pinned-msg-bar i{color:var(--amber);font-size:12px;}
+.chat-input-row{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:flex-end;flex-shrink:0;}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:8px 13px;color:var(--text);font-size:13px;outline:none;resize:none;max-height:100px;overflow-y:auto;line-height:1.4;}
+.chat-input:focus{border-color:var(--accent);}
+.chat-send{width:34px;height:34px;border-radius:50%;background:var(--accent);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.chat-attach-btn{width:34px;height:34px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.online-list{padding:8px;border-top:1px solid var(--border);}
+.online-list-title{font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px;}
+.online-user-row{display:flex;align-items:center;gap:5px;padding:3px 2px;}
+.online-user-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.online-user-name{font-size:11px;}
+/* ── AI ── */
+.ai-layout{display:flex;flex-direction:column;height:100%;}
+.ai-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.ai-msg-row{display:flex;gap:9px;align-items:flex-start;}
+.ai-msg-row.user{flex-direction:row-reverse;}
+.ai-icon{width:28px;height:28px;border-radius:50%;background:var(--purplebg);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--purple);flex-shrink:0;}
+.ai-bubble{max-width:78%;background:var(--bg3);border-radius:12px;padding:9px 13px;font-size:13px;line-height:1.65;word-wrap:break-word;white-space:pre-wrap;}
+.ai-msg-row.user .ai-bubble{background:var(--accentbg);border:1px solid rgba(59,130,246,0.2);}
+.ai-typing span{width:6px;height:6px;background:var(--text3);border-radius:50%;display:inline-block;animation:typing 1.2s infinite;margin:0 2px;}
+.ai-typing span:nth-child(2){animation-delay:0.2s;}
+.ai-typing span:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-5px);}}
+.ai-input-area{padding:10px 14px;border-top:1px solid var(--border);display:flex;gap:7px;flex-shrink:0;}
+.ai-textarea{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:13px;resize:none;outline:none;height:40px;max-height:110px;overflow-y:auto;}
+.ai-textarea:focus{border-color:var(--purple);}
+.ai-send-btn{width:36px;height:36px;border-radius:50%;background:var(--purple);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+/* ── PERSONNEL ── */
+.personnel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.person-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:center;}
+.person-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;margin:0 auto 9px;}
+.person-name{font-size:12px;font-weight:600;}
+.person-role{font-size:11px;color:var(--text2);margin-top:2px;}
+.person-dept{font-size:10px;color:var(--text3);margin-top:2px;}
+.person-status-txt{font-size:11px;color:var(--text3);margin-top:3px;font-style:italic;}
+.person-online{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:7px;font-size:11px;color:var(--text2);}
+.person-online-dot{width:6px;height:6px;border-radius:50%;}
+/* ── ROSTER ── */
+.roster-table{width:100%;border-collapse:collapse;}
+.roster-table th{font-size:11px;color:var(--text3);font-weight:500;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border);}
+.roster-table td{font-size:12px;padding:7px 10px;border-bottom:1px solid var(--border);}
+.roster-table tr:last-child td{border-bottom:none;}
+/* ── CALCULATORS ── */
+.calc-tabs{display:flex;gap:5px;margin-bottom:14px;flex-wrap:wrap;}
+.calc-tab{padding:5px 13px;border-radius:20px;font-size:12px;cursor:pointer;background:var(--bg3);color:var(--text2);border:1px solid var(--border);transition:all 0.15s;}
+.calc-tab.active{background:var(--accentbg);color:var(--accent2);border-color:var(--accent);}
+.calc-panel{display:none;}
+.calc-panel.active{display:block;}
+.calc-basic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;max-width:280px;}
+.calc-display{grid-column:1/-1;background:var(--bg3);border-radius:var(--rs);padding:10px 12px;text-align:right;margin-bottom:2px;}
+.calc-expr-text{font-size:10px;color:var(--text3);min-height:14px;}
+.calc-val-text{font-size:26px;font-weight:300;letter-spacing:-1px;font-family:var(--mono);}
+.calc-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:11px;font-size:14px;cursor:pointer;text-align:center;color:var(--text);transition:background 0.15s;}
+.calc-btn:hover{background:var(--bg4);}
+.calc-btn.op{color:var(--accent2);}
+.calc-btn.eq{background:var(--accent);color:#fff;border-color:var(--accent);}
+.calc-btn.span2{grid-column:span 2;}
+.calc-result-box{background:var(--greenbg);border:1px solid rgba(16,185,129,0.3);border-radius:var(--rs);padding:12px 14px;margin-top:12px;}
+.calc-result-label{font-size:11px;color:var(--green2);margin-bottom:3px;}
+.calc-result-value{font-size:20px;font-weight:600;color:var(--green2);font-family:var(--mono);}
+/* ── ALERTS ── */
+.alert-item{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--bg3);border-radius:var(--rs);margin-bottom:7px;border-left:3px solid var(--border2);}
+.alert-item.critical{border-left-color:var(--red);}
+.alert-item.warning{border-left-color:var(--amber);}
+.alert-icon{font-size:15px;flex-shrink:0;}
+.alert-text{flex:1;}
+.alert-title{font-size:12px;font-weight:500;}
+.alert-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+/* ── ADMIN ── */
+.admin-section{margin-bottom:22px;}
+.admin-section-title{font-size:12px;font-weight:600;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.admin-section-title i{color:var(--accent);}
+.user-row{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg3);border-radius:var(--rs);margin-bottom:5px;}
+.user-row-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;}
+.user-row-info{flex:1;min-width:0;}
+.user-row-name{font-size:12px;font-weight:500;}
+.user-row-email{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-row-actions{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+/* ── FILE LIBRARY ── */
+.file-item{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg3);border-radius:var(--rs);margin-bottom:6px;}
+.file-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.file-name{font-size:12px;font-weight:500;flex:1;}
+.file-meta{font-size:10px;color:var(--text2);margin-top:2px;}
+/* ── PROFILE ── */
+.profile-avatar-big{width:68px;height:68px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;margin:0 auto 10px;border:3px solid var(--border2);}
+.profile-name-big{font-size:17px;font-weight:600;text-align:center;}
+.profile-email-text{font-size:12px;color:var(--text2);text-align:center;margin-top:2px;}
+.status-input{background:var(--bg4);border:1px solid var(--border);border-radius:20px;padding:5px 13px;color:var(--text2);font-size:12px;outline:none;text-align:center;margin-top:9px;width:100%;max-width:260px;}
+/* ── SETTINGS PANEL ── */
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:13px;font-weight:500;}
+.settings-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--bg4);position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left 0.2s;}
+.toggle.on::after{left:20px;}
+.font-size-btns{display:flex;gap:5px;}
+.font-size-btn{padding:4px 12px;border-radius:var(--rs);font-size:12px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+.font-size-btn.active{background:var(--accentbg);color:var(--accent2);border-color:var(--accent);}
+/* ── INVITE LINK BOX ── */
+.invite-link-box{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--rs);padding:11px 13px;font-family:var(--mono);font-size:11px;color:var(--accent2);word-break:break-all;margin-top:9px;}
+/* ── MOBILE ── */
+.mobile-menu-btn{display:none;width:30px;height:30px;align-items:center;justify-content:center;cursor:pointer;border-radius:var(--rs);background:var(--bg3);border:1px solid var(--border);font-size:14px;color:var(--text2);flex-shrink:0;}
+@media(max-width:768px){
+  :root{--sw:0px;}
+  .sidebar{display:none;position:fixed;inset:0;z-index:400;width:240px;background:var(--bg2);}
+  .sidebar.open{display:flex;}
+  .topbar-quote{display:none;}
+  .topbar-weather span{display:none;}
+  .mobile-menu-btn{display:flex!important;}
+  .grid2{grid-template-columns:1fr;}
+  .chat-sidebar{width:160px;}
+  .personnel-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .links-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}
+  .main-content{padding:12px;}
+  .modal{padding:18px;}
+  .feature-grid{grid-template-columns:1fr;}
+  .chat-layout{flex-direction:column;}
+  .chat-sidebar{width:100%;height:auto;max-height:120px;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--border);}
+  .chat-section-title{display:none;}
+  .online-list{display:none;}
+  .chat-room-item{flex-direction:column;min-width:80px;padding:8px 6px;text-align:center;border-bottom:none;border-right:1px solid var(--border);}
+  .chat-room-last{display:none;}
+  .chat-room-name{font-size:10px;}
+}
+/* ── SIDEBAR OVERLAY FOR MOBILE ── */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:399;}
+.sidebar-overlay.show{display:block;}
+</style>
+</head>
+<body>
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><i class="fa-solid fa-building-columns"></i></div>
+      <div><div class="auth-app-name">EMR Portal</div><div class="auth-app-sub">Bigben Group — Equipment Maintenance &amp; Rentals</div></div>
+    </div>
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Sign In</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Register</div>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+    <div id="login-form">
+      <div class="form-row"><label class="form-label">Email address</label><input id="login-email" class="form-input" type="email" placeholder="your@email.com" autocomplete="email"/></div>
+      <div class="form-row"><label class="form-label">Password</label><input id="login-password" class="form-input" type="password" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px;justify-content:center;" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+    </div>
+    <div id="register-form" style="display:none;">
+      <div class="form-row"><label class="form-label">Invite code (required)</label><input id="reg-invite" class="form-input" type="text" placeholder="Paste your invite code"/></div>
+      <div class="form-row"><label class="form-label">Full name</label><input id="reg-name" class="form-input" type="text" placeholder="Juan dela Cruz"/></div>
+      <div class="form-row"><label class="form-label">Email address</label><input id="reg-email" class="form-input" type="email" placeholder="your@email.com" autocomplete="email"/></div>
+      <div class="form-row"><label class="form-label">Password (min. 6 characters)</label><input id="reg-password" class="form-input" type="password" placeholder="••••••••" autocomplete="new-password"/></div>
+      <div class="form-row"><label class="form-label">Department</label>
+        <select id="reg-dept" class="form-input"><option value="">Select department</option><option>Motorpool</option><option>Maintenance</option><option>Fleet Operations</option><option>Admin</option><option>Management</option></select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:4px;justify-content:center;" onclick="doRegister()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
+    <div class="topbar-brand"><div class="topbar-brand-icon"><i class="fa-solid fa-gears"></i></div><div class="topbar-brand-name">EMR Portal</div></div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-clock" id="topbar-clock">--:-- --</div>
+    <div class="topbar-weather" onclick="navigate('weather')"><i class="fa-solid fa-cloud-sun"></i><span id="topbar-weather-text">...</span></div>
+    <div class="topbar-quote" id="topbar-quote">Loading...</div>
+    <div class="topbar-actions">
+      <div style="position:relative;">
+        <div class="topbar-icon-btn" onclick="toggleNotifPanel()" id="notif-btn"><i class="fa-solid fa-bell"></i><div class="notif-dot" id="notif-dot"></div></div>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-panel-header"><span>Notifications</span><span style="color:var(--accent2);cursor:pointer;font-weight:400;font-size:11px;" onclick="markAllRead()">Mark all read</span></div>
+          <div id="notif-list"></div>
+        </div>
+      </div>
+      <div class="topbar-icon-btn" onclick="navigate('settings')" title="Settings"><i class="fa-solid fa-sliders"></i></div>
+      <div class="topbar-avatar" id="topbar-avatar" onclick="navigate('profile')">?</div>
+    </div>
+  </div>
+  <div class="app-body">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-section">Main</div>
+      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard"><i class="fa-solid fa-house"></i> Dashboard</div>
+      <div class="nav-item" onclick="navigate('weather')" id="nav-weather"><i class="fa-solid fa-cloud-sun-rain"></i> Weather</div>
+      <div class="nav-item" onclick="navigate('memos')" id="nav-memos"><i class="fa-solid fa-file-lines"></i> Memos <span class="nav-badge" id="memo-badge"></span></div>
+      <div class="nav-item" onclick="navigate('calendar')" id="nav-calendar"><i class="fa-solid fa-calendar-days"></i> Calendar</div>
+      <div class="nav-item" onclick="navigate('links')" id="nav-links"><i class="fa-solid fa-link"></i> Quick Links</div>
+      <div class="nav-item" onclick="navigate('files')" id="nav-files"><i class="fa-solid fa-folder-open"></i> File Library</div>
+      <div class="sidebar-section">Team</div>
+      <div class="nav-item" onclick="navigate('chat')" id="nav-chat"><i class="fa-solid fa-comments"></i> Team Chat <span class="nav-badge" id="chat-badge"></span></div>
+      <div class="nav-item" onclick="navigate('ai')" id="nav-ai"><i class="fa-solid fa-robot"></i> AI Assistant</div>
+      <div class="nav-item" onclick="navigate('personnel')" id="nav-personnel"><i class="fa-solid fa-users"></i> Personnel</div>
+      <div class="nav-item" onclick="navigate('roster')" id="nav-roster"><i class="fa-solid fa-calendar-check"></i> Duty Roster</div>
+      <div class="sidebar-section">Tools</div>
+      <div class="nav-item" onclick="navigate('calculators')" id="nav-calculators"><i class="fa-solid fa-calculator"></i> Calculators</div>
+      <div class="nav-item" onclick="navigate('alerts')" id="nav-alerts"><i class="fa-solid fa-triangle-exclamation"></i> Alerts <span class="nav-badge" id="alerts-badge"></span></div>
+      <div class="nav-item" onclick="navigate('admin')" id="nav-admin" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Admin</div>
+      <div class="nav-item" onclick="navigate('settings')" id="nav-settings"><i class="fa-solid fa-sliders"></i> Settings</div>
+      <div class="sidebar-footer">
+        <div class="online-indicator" onclick="navigate('profile')" style="cursor:pointer;">
+          <div class="online-dot"></div>
+          <div><div class="online-name" id="sidebar-name">...</div><div class="online-role" id="sidebar-role">Member</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="main-content active" id="page-dashboard">
+      <div id="pinned-banner"><i class="fa-solid fa-thumbtack"></i><div id="pinned-banner-text"></div><i class="fa-solid fa-xmark" onclick="dismissBanner()" style="cursor:pointer;color:var(--text3);flex-shrink:0;"></i></div>
+      <div class="page-header"><div><div class="page-title" id="dash-greeting">Good morning!</div><div class="page-sub">Here's what's happening at EMR today.</div></div></div>
+      <div class="grid2" style="margin-bottom:14px;">
+        <div class="card" style="margin-bottom:0;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-cloud-sun"></i> Weather</span><span class="card-action" onclick="navigate('weather')">Full forecast →</span></div><div class="card-body"><div id="dash-weather-content"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div></div>
+        <div class="card" style="margin-bottom:0;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-quote-left"></i> Daily Quote</span></div><div class="card-body"><div id="dash-quote" style="font-size:12px;line-height:1.7;font-style:italic;color:var(--text2);">Loading...</div></div></div>
+      </div>
+      <div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-bell"></i> Recent Memos</span><span class="card-action" onclick="navigate('memos')">View all →</span></div><div class="card-body" id="dash-memos-list"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div>
+      <div class="grid2">
+        <div class="card" style="margin-bottom:0;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-calendar-days"></i> Upcoming Events</span><span class="card-action" onclick="navigate('calendar')">Calendar →</span></div><div class="card-body" id="dash-events-list"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div>
+        <div class="card" style="margin-bottom:0;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> Active Alerts</span><span class="card-action" onclick="navigate('alerts')">View all →</span></div><div class="card-body" id="dash-alerts-list"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div>
+      </div>
+    </div>
+
+    <!-- WEATHER -->
+    <div class="main-content" id="page-weather">
+      <div class="page-header"><div><div class="page-title">Weather</div><div class="page-sub">Real-time forecast via Open-Meteo</div></div></div>
+      <div class="weather-loc-tabs" id="weather-loc-tabs"></div>
+      <div class="card"><div class="card-body" id="weather-full-content"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div>
+      <div class="card" style="margin-top:4px;" id="weather-extra-card" style="display:none;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-chart-bar"></i> Hourly Breakdown</span></div><div class="card-body" id="weather-hourly"></div></div>
+    </div>
+
+    <!-- MEMOS -->
+    <div class="main-content" id="page-memos">
+      <div class="page-header"><div><div class="page-title">Memos &amp; Announcements</div><div class="page-sub">Official communications</div></div><button class="btn btn-primary btn-sm" id="add-memo-btn" onclick="openMemoModal()" style="display:none;"><i class="fa-solid fa-plus"></i> New Memo</button></div>
+      <div class="search-bar"><input class="form-input" id="memo-search" type="text" placeholder="Search memos..." oninput="renderMemos()"/></div>
+      <div class="filter-pills" id="memo-filter-pills"><div class="filter-pill active" onclick="setMemoFilter('all',this)">All</div><div class="filter-pill" onclick="setMemoFilter('pinned',this)">📌 Pinned</div><div class="filter-pill" onclick="setMemoFilter('urgent',this)">Urgent</div><div class="filter-pill" onclick="setMemoFilter('info',this)">Info</div><div class="filter-pill" onclick="setMemoFilter('general',this)">General</div><div class="filter-pill" onclick="setMemoFilter('hr',this)">HR</div><div class="filter-pill" onclick="setMemoFilter('safety',this)">Safety</div></div>
+      <div id="memos-list-container"></div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="main-content" id="page-calendar">
+      <div class="page-header"><div><div class="page-title">Calendar</div><div class="page-sub">Personal &amp; team events · PH holidays</div></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="openEventModal(false)"><i class="fa-solid fa-plus"></i> My Event</button>
+          <button class="btn btn-primary btn-sm" id="add-event-btn" onclick="openEventModal(true)" style="display:none;"><i class="fa-solid fa-users"></i> Team Event</button>
+        </div>
+      </div>
+      <div class="grid2" style="align-items:start;">
+        <div class="card" style="margin-bottom:0;background:#fff;color:#1a1a2e;">
+          <div class="card-body" style="background:#fff;border-radius:var(--r);">
+            <div class="cal-nav"><div class="cal-nav-btn" onclick="changeCalMonth(-1)" style="color:#333;"><i class="fa-solid fa-chevron-left"></i></div><div class="cal-month-name" id="cal-month-name" style="color:#1a1a2e;font-weight:600;">May 2026</div><div class="cal-nav-btn" onclick="changeCalMonth(1)" style="color:#333;"><i class="fa-solid fa-chevron-right"></i></div></div>
+            <div class="cal-dow"><div class="cal-dow-cell" style="color:#999;">Su</div><div class="cal-dow-cell" style="color:#999;">Mo</div><div class="cal-dow-cell" style="color:#999;">Tu</div><div class="cal-dow-cell" style="color:#999;">We</div><div class="cal-dow-cell" style="color:#999;">Th</div><div class="cal-dow-cell" style="color:#999;">Fr</div><div class="cal-dow-cell" style="color:#999;">Sa</div></div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-legend" style="margin-top:10px;">
+              <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#3b82f6;"></div><span style="color:#555;">Today</span></div>
+              <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#10b981;"></div><span style="color:#555;">Team</span></div>
+              <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#8b5cf6;"></div><span style="color:#555;">Personal</span></div>
+              <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#f59e0b;"></div><span style="color:#555;">Holiday</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-list"></i> Upcoming Events</span></div><div class="card-body" id="events-upcoming-list" style="max-height:400px;overflow-y:auto;"><div style="color:var(--text2);font-size:12px;">Loading...</div></div></div>
+      </div>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="main-content" id="page-links">
+      <div class="page-header"><div><div class="page-title">Quick Links</div><div class="page-sub">All EMR systems in one place</div></div><button class="btn btn-primary btn-sm" id="add-link-btn" onclick="openLinkModal()" style="display:none;"><i class="fa-solid fa-plus"></i> Add Link</button></div>
+      <div id="links-container"></div>
+    </div>
+
+    <!-- FILE LIBRARY -->
+    <div class="main-content" id="page-files">
+      <div class="page-header"><div><div class="page-title">File Library</div><div class="page-sub">Shared documents &amp; files</div></div>
+        <div style="display:flex;gap:6px;"><label class="btn btn-primary btn-sm" style="cursor:pointer;"><i class="fa-solid fa-upload"></i> Upload File<input type="file" id="file-upload-input" style="display:none;" onchange="uploadFile(this)" multiple/></label></div>
+      </div>
+      <div class="search-bar"><input class="form-input" id="file-search" type="text" placeholder="Search files..." oninput="renderFiles()"/></div>
+      <div id="files-container"><div style="color:var(--text2);font-size:12px;">Loading...</div></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="main-content" id="page-chat" style="padding:0;overflow:hidden;">
+      <div class="chat-layout">
+        <div class="chat-sidebar" id="chat-sidebar-list">
+          <div class="chat-section-title">Channels</div>
+          <div class="chat-room-item active" id="room-item-general" onclick="selectRoom('general',this)"><div class="chat-room-icon"><i class="fa-solid fa-hashtag"></i></div><div style="min-width:0;"><div class="chat-room-name">General</div><div class="chat-room-last" id="room-last-general">Team chat</div></div></div>
+          <div class="chat-section-title">Direct Messages</div>
+          <div id="dm-list"></div>
+          <div class="chat-section-title">Groups</div>
+          <div id="group-list"></div>
+          <div style="padding:8px 12px;"><button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;" onclick="openCreateGroupModal()"><i class="fa-solid fa-plus"></i> New Group</button></div>
+          <div class="online-list" id="chat-online-list"><div class="online-list-title">Online Now</div></div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="chat-room-icon" id="chat-room-icon" style="width:30px;height:30px;"><i class="fa-solid fa-hashtag"></i></div>
+            <div style="flex:1;min-width:0;"><div class="chat-header-name" id="chat-room-name">General</div><div class="chat-header-sub" id="chat-room-sub">Team-wide channel</div></div>
+          </div>
+          <div class="pinned-msg-bar" id="pinned-msg-bar"><i class="fa-solid fa-thumbtack"></i><span id="pinned-msg-text">No pinned message</span></div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <div class="chat-input-row">
+            <button class="chat-attach-btn" onclick="document.getElementById('chat-file-input').click()" title="Attach image"><i class="fa-solid fa-image"></i></button>
+            <input type="file" id="chat-file-input" accept="image/*" style="display:none;" onchange="sendChatImage(this)"/>
+            <textarea class="chat-input" id="chat-input" placeholder="Message #general..." rows="1" onkeydown="chatKeydown(event)" oninput="autoResizeTextarea(this)"></textarea>
+            <button class="chat-send" onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI ASSISTANT -->
+    <div class="main-content" id="page-ai" style="padding:0;overflow:hidden;">
+      <div class="ai-layout">
+        <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;flex-shrink:0;">
+          <div style="width:30px;height:30px;border-radius:50%;background:var(--purplebg);display:flex;align-items:center;justify-content:center;color:var(--purple);"><i class="fa-solid fa-robot"></i></div>
+          <div><div style="font-size:13px;font-weight:600;">AI Assistant</div><div style="font-size:11px;color:var(--text2);">Private — only you can see this</div></div>
+          <div style="margin-left:auto;"><button class="btn btn-ghost btn-sm" onclick="clearAiChat()"><i class="fa-solid fa-rotate-left"></i> Clear</button></div>
+        </div>
+        <div class="ai-messages" id="ai-messages">
+          <div class="ai-msg-row"><div class="ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ai-bubble">Hi! I'm your private AI assistant for BBG EMR. I can help draft memos, translate Filipino ↔ English, answer fleet questions, compute costs, and more. What can I help you with?</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);text-align:center;padding:5px;">Private — not visible to other users</div>
+        <div class="ai-input-area">
+          <textarea class="ai-textarea" id="ai-input" placeholder="Ask anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMessage();}"></textarea>
+          <button class="ai-send-btn" onclick="sendAiMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PERSONNEL -->
+    <div class="main-content" id="page-personnel">
+      <div class="page-header"><div><div class="page-title">Personnel Directory</div><div class="page-sub">All EMR team members</div></div></div>
+      <div class="search-bar"><input class="form-input" id="personnel-search" type="text" placeholder="Search by name or department..." oninput="renderPersonnel()"/></div>
+      <div class="personnel-grid" id="personnel-grid"><div style="color:var(--text2);font-size:12px;">Loading...</div></div>
+    </div>
+
+    <!-- DUTY ROSTER -->
+    <div class="main-content" id="page-roster">
+      <div class="page-header"><div><div class="page-title">Duty Roster</div><div class="page-sub">Team schedules &amp; batches</div></div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" id="add-batch-btn" onclick="openBatchModal()" style="display:none;"><i class="fa-solid fa-layer-group"></i> Add Batch</button>
+          <button class="btn btn-primary btn-sm" id="add-roster-btn" onclick="openRosterModal()" style="display:none;"><i class="fa-solid fa-plus"></i> Add Entry</button>
+        </div>
+      </div>
+      <div id="roster-container"><div style="color:var(--text2);font-size:12px;">Loading...</div></div>
+    </div>
+
+    <!-- CALCULATORS -->
+    <div class="main-content" id="page-calculators">
+      <div class="page-header"><div><div class="page-title">Calculators</div><div class="page-sub">EMR operations tools</div></div></div>
+      <div class="calc-tabs"><div class="calc-tab active" onclick="switchCalc('basic',this)">Basic</div><div class="calc-tab" onclick="switchCalc('fuel',this)">Fuel Cost</div><div class="calc-tab" onclick="switchCalc('overtime',this)">Overtime Pay</div><div class="calc-tab" onclick="switchCalc('converter',this)">Unit Converter</div><div class="calc-tab" onclick="switchCalc('date',this)">Date Diff</div></div>
+      <div class="calc-panel active" id="calc-basic"><div class="calc-basic-grid"><div class="calc-display"><div class="calc-expr-text" id="calc-expr"></div><div class="calc-val-text" id="calc-val">0</div></div><div class="calc-btn op" onclick="calcFn('clear')">C</div><div class="calc-btn op" onclick="calcFn('sign')">±</div><div class="calc-btn op" onclick="calcFn('pct')">%</div><div class="calc-btn op" onclick="calcFn('op','/')">÷</div><div class="calc-btn" onclick="calcFn('num','7')">7</div><div class="calc-btn" onclick="calcFn('num','8')">8</div><div class="calc-btn" onclick="calcFn('num','9')">9</div><div class="calc-btn op" onclick="calcFn('op','*')">×</div><div class="calc-btn" onclick="calcFn('num','4')">4</div><div class="calc-btn" onclick="calcFn('num','5')">5</div><div class="calc-btn" onclick="calcFn('num','6')">6</div><div class="calc-btn op" onclick="calcFn('op','-')">−</div><div class="calc-btn" onclick="calcFn('num','1')">1</div><div class="calc-btn" onclick="calcFn('num','2')">2</div><div class="calc-btn" onclick="calcFn('num','3')">3</div><div class="calc-btn op" onclick="calcFn('op','+')">+</div><div class="calc-btn span2" onclick="calcFn('num','0')">0</div><div class="calc-btn" onclick="calcFn('dot')">.</div><div class="calc-btn eq" onclick="calcFn('eq')">=</div></div></div>
+      <div class="calc-panel" id="calc-fuel"><div class="card" style="max-width:400px;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-gas-pump"></i> Fuel Cost</span></div><div class="card-body"><div class="form-row"><label class="form-label">Distance (km)</label><input class="form-input" id="fuel-km" type="number" placeholder="e.g. 150" oninput="calcFuel()"/></div><div class="form-row"><label class="form-label">Fuel consumption (km/L)</label><input class="form-input" id="fuel-cons" type="number" placeholder="e.g. 8" oninput="calcFuel()"/></div><div class="form-row"><label class="form-label">Fuel price (₱/liter)</label><input class="form-input" id="fuel-price" type="number" placeholder="e.g. 65" oninput="calcFuel()"/></div><div class="calc-result-box" id="fuel-result" style="display:none;"><div class="calc-result-label">Estimated Fuel Cost</div><div class="calc-result-value" id="fuel-result-val">₱0.00</div><div style="font-size:11px;color:var(--green2);margin-top:3px;" id="fuel-result-liters"></div></div></div></div></div>
+      <div class="calc-panel" id="calc-overtime"><div class="card" style="max-width:440px;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-clock"></i> Overtime Pay</span></div><div class="card-body"><div class="form-row"><label class="form-label">Daily rate (₱)</label><input class="form-input" id="ot-rate" type="number" placeholder="e.g. 600" oninput="calcOT()"/></div><div class="form-row"><label class="form-label">OT hours</label><input class="form-input" id="ot-hours" type="number" placeholder="e.g. 3" step="0.5" oninput="calcOT()"/></div><div class="form-row"><label class="form-label">Day type &amp; OT rate</label><select class="form-input" id="ot-type" onchange="calcOT()"><optgroup label="Regular Day"><option value="1.25">Regular day OT (×1.25)</option></optgroup><optgroup label="Rest Day"><option value="1.30">Rest day OT (×1.30)</option><option value="1.50">Rest day first 8hrs (×1.50)</option></optgroup><optgroup label="Regular Holiday"><option value="2.00">Regular holiday (×2.00)</option><option value="2.60">Regular holiday OT (×2.60)</option></optgroup><optgroup label="Special Holiday"><option value="1.30">Special holiday (×1.30)</option><option value="1.69">Special holiday OT (×1.69)</option><option value="1.50">Special holiday rest day (×1.50)</option><option value="1.95">Special holiday rest day OT (×1.95)</option></optgroup></select></div><div class="form-row"><label class="form-label">Night shift differential? (10PM–6AM)</label><select class="form-input" id="ot-nsd" onchange="calcOT()"><option value="0">No night shift differential</option><option value="0.10">+10% Night Shift Differential</option></select></div><div class="calc-result-box" id="ot-result" style="display:none;"><div class="calc-result-label">OT Pay</div><div class="calc-result-value" id="ot-result-val">₱0.00</div><div style="font-size:11px;color:var(--green2);margin-top:3px;" id="ot-result-sub"></div></div></div></div></div>
+      <div class="calc-panel" id="calc-converter"><div class="card" style="max-width:420px;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-arrows-rotate"></i> Unit Converter</span></div><div class="card-body"><div class="form-row"><label class="form-label">Category</label><select class="form-input" id="conv-cat" onchange="updateConvUnits()"><option value="length">Length</option><option value="weight">Weight</option><option value="volume">Volume</option><option value="temp">Temperature</option></select></div><div style="display:flex;gap:8px;align-items:flex-end;"><div style="flex:1;"><label class="form-label">From</label><select class="form-input" id="conv-from" onchange="doConvert()"></select></div><div style="padding-bottom:9px;color:var(--text3);"><i class="fa-solid fa-right-left"></i></div><div style="flex:1;"><label class="form-label">To</label><select class="form-input" id="conv-to" onchange="doConvert()"></select></div></div><div class="form-row" style="margin-top:10px;"><label class="form-label">Value</label><input class="form-input" id="conv-val" type="number" placeholder="Enter value" oninput="doConvert()"/></div><div class="calc-result-box" id="conv-result" style="display:none;"><div class="calc-result-label">Result</div><div class="calc-result-value" id="conv-result-val">0</div></div></div></div></div>
+      <div class="calc-panel" id="calc-date"><div class="card" style="max-width:400px;"><div class="card-header"><span class="card-title"><i class="fa-solid fa-calendar-days"></i> Date Calculator</span></div><div class="card-body"><div class="form-row"><label class="form-label">Start date</label><input class="form-input" id="date-from" type="date" onchange="calcDate()"/></div><div class="form-row"><label class="form-label">End date</label><input class="form-input" id="date-to" type="date" onchange="calcDate()"/></div><div class="calc-result-box" id="date-result" style="display:none;"><div class="calc-result-label">Difference</div><div class="calc-result-value" id="date-result-val">0 days</div><div style="font-size:11px;color:var(--green2);margin-top:3px;" id="date-result-sub"></div></div></div></div></div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="main-content" id="page-alerts">
+      <div class="page-header"><div><div class="page-title">Alerts</div><div class="page-sub">LTO expiry, PMS due, critical notices</div></div><button class="btn btn-primary btn-sm" id="add-alert-btn" onclick="openAlertModal()" style="display:none;"><i class="fa-solid fa-plus"></i> Add Alert</button></div>
+      <div id="alerts-container"><div style="color:var(--text2);font-size:12px;">Loading...</div></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="main-content" id="page-admin">
+      <div class="page-header"><div><div class="page-title">Admin Panel</div><div class="page-sub">Super Admin controls</div></div></div>
+      <div class="admin-section"><div class="admin-section-title"><i class="fa-solid fa-users"></i> Manage Users</div><div id="admin-users-list"></div></div>
+      <div class="admin-section"><div class="admin-section-title"><i class="fa-solid fa-envelope-open-text"></i> Generate Invite Link</div><p style="font-size:12px;color:var(--text2);margin-bottom:9px;">One-time link valid for 24 hours.</p><button class="btn btn-primary" onclick="generateInviteLink()"><i class="fa-solid fa-link"></i> Generate Invite Link</button><div id="invite-link-result"></div></div>
+      <div class="admin-section"><div class="admin-section-title"><i class="fa-solid fa-tags"></i> Memo Categories</div><div style="display:flex;gap:7px;margin-bottom:9px;"><input class="form-input" id="new-cat-input" placeholder="New category name..." style="flex:1;"/><button class="btn btn-primary btn-sm" onclick="addMemoCategory()"><i class="fa-solid fa-plus"></i> Add</button></div><div id="cat-list"></div></div>
+      <div class="admin-section"><div class="admin-section-title"><i class="fa-solid fa-thumbtack"></i> Pinned Banner</div><div class="form-row"><label class="form-label">Banner message (leave empty to clear)</label><input class="form-input" id="banner-input" placeholder="Type pinned announcement..."/></div><button class="btn btn-primary btn-sm" onclick="saveBanner()"><i class="fa-solid fa-save"></i> Save Banner</button></div>
+      <div class="admin-section"><div class="admin-section-title"><i class="fa-solid fa-map-marker-alt"></i> Weather Locations</div><p style="font-size:12px;color:var(--text2);margin-bottom:9px;">Add locations to the weather page (default: Pulilan, Bulacan).</p><div style="display:flex;gap:7px;margin-bottom:9px;"><input class="form-input" id="new-loc-name" placeholder="Location name (e.g. Manila)" style="flex:1;"/><input class="form-input" id="new-loc-lat" placeholder="Latitude" style="width:90px;"/><input class="form-input" id="new-loc-lon" placeholder="Longitude" style="width:90px;"/><button class="btn btn-primary btn-sm" onclick="addWeatherLocation()"><i class="fa-solid fa-plus"></i> Add</button></div><div id="loc-list"></div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="main-content" id="page-settings">
+      <div class="page-header"><div><div class="page-title">Settings</div><div class="page-sub">Customize your experience</div></div></div>
+      <div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-palette"></i> Appearance</span></div><div class="card-body">
+        <div class="settings-row"><div><div class="settings-label">Light Mode</div><div class="settings-sub">Switch between dark and light theme</div></div><div class="toggle" id="toggle-theme" onclick="toggleTheme()"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Font Size</div><div class="settings-sub">Adjust text size for readability</div></div><div class="font-size-btns"><div class="font-size-btn" onclick="setFontSize('sm',this)">Small</div><div class="font-size-btn active" onclick="setFontSize('md',this)">Medium</div><div class="font-size-btn" onclick="setFontSize('lg',this)">Large</div></div></div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-bell"></i> Notifications</span></div><div class="card-body">
+        <div class="settings-row"><div><div class="settings-label">Chat Messages</div><div class="settings-sub">Notify when new message arrives</div></div><div class="toggle on" id="toggle-notif-chat" onclick="toggleNotifSetting('chat',this)"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Memos &amp; Announcements</div><div class="settings-sub">Notify when new memo is posted</div></div><div class="toggle on" id="toggle-notif-memo" onclick="toggleNotifSetting('memo',this)"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Calendar Reminders</div><div class="settings-sub">Notify 1 hour before events</div></div><div class="toggle on" id="toggle-notif-cal" onclick="toggleNotifSetting('cal',this)"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Alerts</div><div class="settings-sub">Notify for critical alerts</div></div><div class="toggle on" id="toggle-notif-alert" onclick="toggleNotifSetting('alert',this)"></div></div>
+      </div></div>
+      <div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-mobile"></i> Install App (PWA)</span></div><div class="card-body">
+        <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Install EMR Portal on your device home screen for quick access — works like a native app.</p>
+        <button class="btn btn-primary" id="pwa-install-btn" onclick="installPWA()" style="display:none;"><i class="fa-solid fa-download"></i> Install on Device</button>
+        <div id="pwa-install-instructions" style="font-size:12px;color:var(--text2);">
+          <strong style="color:var(--text);">iOS (Safari):</strong> Tap Share button → "Add to Home Screen"<br/>
+          <strong style="color:var(--text);">Android (Chrome):</strong> Tap ⋮ menu → "Add to Home Screen" or "Install App"<br/>
+          <strong style="color:var(--text);">Desktop Chrome:</strong> Click the install icon in the address bar
+        </div>
+      </div></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="main-content" id="page-profile">
+      <div class="page-header"><div><div class="page-title">My Profile</div><div class="page-sub">Account settings</div></div></div>
+      <div class="card" style="max-width:460px;"><div class="card-body">
+        <div style="text-align:center;padding:16px 0 20px;">
+          <div class="profile-avatar-big" id="profile-avatar-big" style="background:var(--accentbg);color:var(--accent2);">?</div>
+          <div class="profile-name-big" id="profile-name-big">...</div>
+          <div class="profile-email-text" id="profile-email-text">...</div>
+          <input class="status-input" id="profile-status" placeholder="Set a status message..." onblur="saveStatus()"/>
+        </div>
+        <div class="form-row"><label class="form-label">Full name</label><input class="form-input" id="profile-name-input" placeholder="Your name"/></div>
+        <div class="form-row"><label class="form-label">Department</label><select class="form-input" id="profile-dept-input"><option>Motorpool</option><option>Maintenance</option><option>Fleet Operations</option><option>Admin</option><option>Management</option></select></div>
+        <div class="btn-row" style="justify-content:flex-start;">
+          <button class="btn btn-primary" onclick="saveProfile()"><i class="fa-solid fa-save"></i> Save Changes</button>
+          <button class="btn btn-ghost" onclick="doLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</button>
+        </div>
+      </div></div>
+    </div>
+
+  </div><!-- end app-body -->
+</div><!-- end app -->
+<!-- MODALS -->
+<div class="overlay" id="memo-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-file-pen"></i> <span id="memo-modal-title">New Memo</span></div><input type="hidden" id="memo-edit-id"/><div class="form-row"><label class="form-label">Title</label><input class="form-input" id="memo-title-input" placeholder="Memo title"/></div><div class="form-row"><label class="form-label">Category</label><select class="form-input" id="memo-cat-input"><option value="general">General</option><option value="urgent">Urgent</option><option value="info">Info</option><option value="hr">HR</option><option value="safety">Safety</option><option value="operations">Operations</option></select></div><div class="form-row"><label class="form-label">Content</label><textarea class="form-input" id="memo-content-input" rows="5" placeholder="Write your memo here..."></textarea></div><div class="form-row"><label class="form-label">Attach file (optional)</label><input type="file" class="form-input" id="memo-file-input" style="padding:6px;"/></div><div class="form-row" style="display:flex;align-items:center;gap:9px;"><input type="checkbox" id="memo-pin-input" style="width:auto;"/><label class="form-label" style="margin-bottom:0;">Pin this memo</label></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('memo-modal')">Cancel</button><button class="btn btn-primary" id="memo-save-btn" onclick="saveMemo()"><i class="fa-solid fa-save"></i> Save</button></div></div></div>
+<div class="overlay" id="memo-view-modal"><div class="modal" style="width:560px;"><div class="modal-title"><i class="fa-solid fa-file-lines"></i> <span id="view-memo-title">Memo</span></div><div style="font-size:12px;color:var(--text2);margin-bottom:12px;" id="view-memo-meta"></div><div style="font-size:13px;line-height:1.8;white-space:pre-wrap;max-height:280px;overflow-y:auto;" id="view-memo-content"></div><div id="view-memo-attachment" style="margin-top:10px;"></div><div id="view-memo-reactions" style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;"></div><div class="btn-row" style="justify-content:space-between;"><div id="view-memo-admin-btns" style="display:flex;gap:6px;"></div><button class="btn btn-ghost" onclick="closeModal('memo-view-modal')">Close</button></div></div></div>
+<div class="overlay" id="event-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-calendar-plus"></i> <span id="event-modal-title">New Event</span></div><input type="hidden" id="event-edit-id"/><input type="hidden" id="event-is-personal"/><div id="event-scope-badge" style="margin-bottom:12px;"></div><div class="form-row"><label class="form-label">Event name</label><input class="form-input" id="event-name-input" placeholder="Event title"/></div><div class="form-row"><label class="form-label">Date</label><input class="form-input" id="event-date-input" type="date"/></div><div class="form-row"><label class="form-label">Time (optional)</label><input class="form-input" id="event-time-input" type="time"/></div><div class="form-row"><label class="form-label">Event type (type your own)</label><input class="form-input" id="event-type-input" placeholder="e.g. Meeting, PMS, Birthday, Holiday..."/></div><div class="form-row"><label class="form-label">Color</label><div style="display:flex;gap:6px;flex-wrap:wrap;" id="event-color-picker"></div><input type="hidden" id="event-selected-color" value="#3b82f6"/></div><div class="form-row"><label class="form-label">Description (optional)</label><textarea class="form-input" id="event-desc-input" rows="2" placeholder="Details..."></textarea></div><div class="form-row" style="display:flex;align-items:center;gap:9px;"><input type="checkbox" id="event-recurring-input" style="width:auto;"/><label class="form-label" style="margin-bottom:0;">Recurring (weekly)</label></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('event-modal')">Cancel</button><button class="btn btn-primary" onclick="saveEvent()"><i class="fa-solid fa-save"></i> Save</button></div></div></div>
+<div class="overlay" id="link-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-link"></i> <span id="link-modal-title">New Link</span></div><input type="hidden" id="link-edit-id"/><div class="form-row"><label class="form-label">Name</label><input class="form-input" id="link-name-input" placeholder="e.g. JO Billing System"/></div><div class="form-row"><label class="form-label">URL</label><input class="form-input" id="link-url-input" placeholder="https://..."/></div><div class="form-row"><label class="form-label">Description</label><input class="form-input" id="link-desc-input" placeholder="Short description"/></div><div class="form-row"><label class="form-label">Category</label><input class="form-input" id="link-cat-input" placeholder="e.g. Monitoring, Billing, Admin"/></div><div class="form-row"><label class="form-label">Icon — search Font Awesome name (e.g. fa-file-invoice)</label><div style="display:flex;gap:6px;"><input class="form-input" id="link-icon-input" placeholder="fa-link" oninput="previewLinkIcon()"/><div id="link-icon-preview" style="width:38px;height:38px;border-radius:9px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;"></div></div></div><div class="form-row"><label class="form-label">Color</label><div style="display:flex;gap:6px;flex-wrap:wrap;" id="link-color-picker"></div><input type="hidden" id="link-color-input" value="#3b82f6"/></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('link-modal')">Cancel</button><button class="btn btn-primary" onclick="saveLink()"><i class="fa-solid fa-save"></i> Save</button></div></div></div>
+<div class="overlay" id="alert-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-triangle-exclamation"></i> New Alert</div><div class="form-row"><label class="form-label">Title</label><input class="form-input" id="alert-title-input" placeholder="e.g. LTO Expiry — Plate ABC123"/></div><div class="form-row"><label class="form-label">Details</label><input class="form-input" id="alert-sub-input" placeholder="Additional info"/></div><div class="form-row"><label class="form-label">Severity</label><select class="form-input" id="alert-sev-input"><option value="critical">Critical</option><option value="warning">Warning</option></select></div><div class="form-row"><label class="form-label">Due / expiry date</label><input class="form-input" id="alert-date-input" type="date"/></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('alert-modal')">Cancel</button><button class="btn btn-primary" onclick="saveAlert()"><i class="fa-solid fa-save"></i> Save</button></div></div></div>
+<div class="overlay" id="roster-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-calendar-check"></i> Add Roster Entry</div><div class="form-row"><label class="form-label">Employee name</label><input class="form-input" id="roster-name-input" placeholder="Full name"/></div><div class="form-row"><label class="form-label">Role / Position</label><input class="form-input" id="roster-role-input" placeholder="e.g. Mechanic, Driver"/></div><div class="form-row"><label class="form-label">Batch</label><select class="form-input" id="roster-batch-input"><option value="A">Batch A (Mon–Wed)</option><option value="B">Batch B (Thu–Sat)</option><option value="Chief">Chief (Mon–Sat)</option></select></div><div class="form-row"><label class="form-label">Status</label><select class="form-input" id="roster-status-input"><option value="active">Active</option><option value="leave">On Leave</option><option value="absent">Absent</option></select></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('roster-modal')">Cancel</button><button class="btn btn-primary" onclick="saveRosterEntry()"><i class="fa-solid fa-save"></i> Save</button></div></div></div>
+<div class="overlay" id="batch-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-layer-group"></i> Add Custom Batch</div><div class="form-row"><label class="form-label">Batch name</label><input class="form-input" id="batch-name-input" placeholder="e.g. Batch C, Night Shift, Field Team"/></div><div class="form-row"><label class="form-label">Schedule description</label><input class="form-input" id="batch-sched-input" placeholder="e.g. Sunday to Thursday"/></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('batch-modal')">Cancel</button><button class="btn btn-primary" onclick="saveCustomBatch()"><i class="fa-solid fa-save"></i> Add Batch</button></div></div></div>
+<div class="overlay" id="create-group-modal"><div class="modal"><div class="modal-title"><i class="fa-solid fa-users"></i> Create Group Chat</div><div class="form-row"><label class="form-label">Group name</label><input class="form-input" id="group-name-input" placeholder="e.g. Maintenance Team Alpha"/></div><div class="form-row"><label class="form-label">Select members</label><div id="group-members-list" style="max-height:200px;overflow-y:auto;background:var(--bg3);border-radius:var(--rs);border:1px solid var(--border2);padding:8px;"></div></div><div class="btn-row"><button class="btn btn-ghost" onclick="closeModal('create-group-modal')">Cancel</button><button class="btn btn-primary" onclick="createGroupChat()"><i class="fa-solid fa-plus"></i> Create Group</button></div></div></div>
+<div class="overlay" id="img-preview-modal"><div class="modal" style="background:transparent;border:none;padding:0;max-width:90vw;"><img id="img-preview-src" style="max-width:100%;max-height:85vh;border-radius:var(--r);display:block;"/><div style="text-align:center;margin-top:10px;"><button class="btn btn-ghost" onclick="closeModal('img-preview-modal')">Close</button></div></div></div>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+// Firebase Compat SDK - no imports needed
+
+const cfg={apiKey:"AIzaSyAk7f_3M6Lwu3NXiw4DT0V9S3PusoC0N8c",authDomain:"bbg-emr-intranet.firebaseapp.com",projectId:"bbg-emr-intranet",storageBucket:"bbg-emr-intranet.firebasestorage.app",messagingSenderId:"412213038952",appId:"1:412213038952:web:e975adb054a03251bb10dd",databaseURL:"https://bbg-emr-intranet-default-rtdb.firebaseio.com"};
+const fapp=initializeApp(cfg);
+const auth=getAuth(fapp);
+const db=getFirestore(fapp);
+const rtdb=getDatabase(fapp);
+
+// ── STATE ──
+let CU=null,CUD=null,isAdmin=false;
+let memoFilter='all',calY=new Date().getFullYear(),calM=new Date().getMonth();
+let calEvts=[],calPersonalEvts=[];
+let calcS={val:'0',expr:'',op:null,prev:null,newNum:true};
+let chatRoom='general',chatUnsub=null,memosData=[],aiHist=[],onlineU={};
+let allUsers=[],customBatches=[];
+let _appInit=false;
+let weatherLocs=[{name:'Pulilan, Bulacan',lat:14.9008,lon:120.8571}];
+let activeWeatherLoc=0;
+let notifSettings={chat:true,memo:true,cal:true,alert:true};
+let deferredInstallPrompt=null;
+let pinnedMsgData={};
+
+const PHDAYS={
+  '2026-01-01':'New Year\'s Day','2026-02-25':'EDSA People Power',
+  '2026-04-02':'Maundy Thursday','2026-04-03':'Good Friday','2026-04-04':'Black Saturday',
+  '2026-04-09':'Araw ng Kagitingan','2026-05-01':'Labor Day','2026-06-12':'Independence Day',
+  '2026-08-21':'Ninoy Aquino Day','2026-08-31':'National Heroes Day',
+  '2026-11-01':'All Saints Day','2026-11-02':'All Souls Day',
+  '2026-11-30':'Bonifacio Day','2026-12-08':'Immaculate Conception',
+  '2026-12-24':'Christmas Eve','2026-12-25':'Christmas Day',
+  '2026-12-30':'Rizal Day','2026-12-31':'New Year\'s Eve'
+};
+const COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#ec4899','#f97316','#84cc16','#06b6d4'];
+
+// ── PWA MANIFEST ──
+function setupPWA(){
+  const manifest={name:'EMR Portal',short_name:'EMR Portal',description:'Bigben Group EMR Intranet',start_url:window.location.href,display:'standalone',background_color:'#0a0e1a',theme_color:'#3b82f6',icons:[{src:'https://via.placeholder.com/192x192/3b82f6/ffffff?text=EMR',sizes:'192x192',type:'image/png'},{src:'https://via.placeholder.com/512x512/3b82f6/ffffff?text=EMR',sizes:'512x512',type:'image/png'}]};
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href=url;
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();deferredInstallPrompt=e;
+    const btn=document.getElementById('pwa-install-btn');
+    if(btn)btn.style.display='inline-flex';
+  });
+}
+window.installPWA=function(){
+  if(deferredInstallPrompt){deferredInstallPrompt.prompt();deferredInstallPrompt=null;}
+};
+setupPWA();
+
+// ── SETTINGS ──
+function loadSettings(){
+  const s=localStorage.getItem('emr_settings');
+  if(s){try{
+    const p=JSON.parse(s);
+    notifSettings=Object.assign(notifSettings,p.notif||{});
+    if(p.theme==='light')applyTheme(true);
+    if(p.fontSize)applyFontSize(p.fontSize);
+    Object.keys(notifSettings).forEach(function(k){const el=document.getElementById('toggle-notif-'+k);if(el)el.classList.toggle('on',!!notifSettings[k]);});
+  }catch(e){}}
+}
+function saveSettings(){
+  const theme=document.body.classList.contains('light-mode')?'light':'dark';
+  const fontSize=document.body.classList.contains('font-sm')?'sm':document.body.classList.contains('font-lg')?'lg':'md';
+  localStorage.setItem('emr_settings',JSON.stringify({notif:notifSettings,theme,fontSize}));
+}
+window.toggleTheme=function(){
+  const isLight=document.body.classList.toggle('light-mode');
+  const t=document.getElementById('toggle-theme');if(t)t.classList.toggle('on',isLight);
+  saveSettings();
+};
+function applyTheme(light){
+  document.body.classList.toggle('light-mode',light);
+  const t=document.getElementById('toggle-theme');if(t)t.classList.toggle('on',light);
+}
+window.setFontSize=function(size,el){
+  document.querySelectorAll('.font-size-btn').forEach(function(b){b.classList.remove('active');});
+  el.classList.add('active');
+  applyFontSize(size);saveSettings();
+};
+function applyFontSize(size){
+  document.body.classList.remove('font-sm','font-lg');
+  if(size==='sm')document.body.classList.add('font-sm');
+  else if(size==='lg')document.body.classList.add('font-lg');
+  document.querySelectorAll('.font-size-btn').forEach(function(b){
+    const map={'sm':'small','md':'medium','lg':'large'};
+    b.classList.toggle('active',b.textContent.toLowerCase()===map[size]);});
+}
+window.toggleNotifSetting=function(key,el){
+  notifSettings[key]=!notifSettings[key];
+  el.classList.toggle('on',notifSettings[key]);saveSettings();
+};
+loadSettings();
+
+// ── AUTH ──
+window.switchAuthTab=function(t){
+  document.querySelectorAll('.auth-tab').forEach(function(el,i){el.classList.toggle('active',i===(t==='login'?0:1));});
+  document.getElementById('login-form').style.display=t==='login'?'block':'none';
+  document.getElementById('register-form').style.display=t==='register'?'block':'none';
+  document.getElementById('auth-error').classList.remove('show');
+};
+function showErr(m){const e=document.getElementById('auth-error');e.textContent=m;e.classList.add('show');}
+
+window.doLogin=async function(){
+  const em=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  if(!em||!pw)return showErr('Please fill in all fields.');
+  const btn=document.querySelector('#login-form .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='Signing in...';}
+  try{
+    await auth.signInWithEmailAndPassword(em,pw);
+  }catch(e){
+    const msgs={'auth/invalid-credential':'Invalid email or password.','auth/user-not-found':'No account found with this email.','auth/wrong-password':'Wrong password.','auth/too-many-requests':'Too many attempts. Please try again later.','auth/network-request-failed':'Network error. Check your connection.'};
+    showErr(msgs[e.code]||e.message);
+  }finally{if(btn){btn.disabled=false;btn.textContent='Sign In';}}
+};
+
+window.doRegister=async function(){
+  const inv=document.getElementById('reg-invite').value.trim();
+  const nm=document.getElementById('reg-name').value.trim();
+  const em=document.getElementById('reg-email').value.trim();
+  const pw=document.getElementById('reg-password').value;
+  const dp=document.getElementById('reg-dept').value;
+  if(!inv||!nm||!em||!pw||!dp)return showErr('Please fill in all fields.');
+  if(pw.length<6)return showErr('Password must be at least 6 characters.');
+  const btn=document.querySelector('#register-form .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='Creating account...';}
+  try{
+    const iRef=db.doc('invites/'+inv);
+    const iSnap=await iRef.get();
+    if(!iSnap.exists)return showErr('Invalid invite code.');
+    const iData=iSnap.data();
+    if(iData.used)return showErr('Invite code already used.');
+    if(iData.expiresAt&&iData.expiresAt.toDate&&iData.expiresAt.toDate()<new Date())return showErr('Invite code has expired.');
+    const cred=await auth.createUserWithEmailAndPassword(em,pw);
+    await cred.user.updateProfile({displayName:nm});
+    const uSnap=await db.collection('users'.get());
+    const role=uSnap.empty?'superadmin':'member';
+    await db.doc('users'.set(cred.user.uid),{name:nm,email:em,dept:dp,role,status:'',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await iRef.update({used:true,usedBy:em,usedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  }catch(e){showErr(e.message);}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-user-plus"></i> Create Account';}}
+};
+
+window.doLogout=async function(){
+  _appInit=false;
+  if(CU){try{await set(rtdb.ref('presence/'+CU.uid),null);}catch(e){}}
+  try{await auth.signOut();}catch(e){alert('Sign out failed.');}
+};
+
+firebase.auth().onAuthStateChanged(async function(user){
+  if(user){
+    CU=user;
+    try{
+      const s=await db.doc('users',user.uid.get());
+      CUD=s.exists?s.data():{name:user.displayName||'User',role:'member',dept:'',status:''};
+    }catch(e){CUD={name:user.displayName||'User',role:'member',dept:'',status:''};}
+    isAdmin=!!(CUD&&CUD.role==='superadmin');
+    if(!_appInit){_appInit=true;initApp();}
+  }else{
+    CU=null;CUD=null;isAdmin=false;_appInit=false;
+    document.getElementById('auth-screen').style.display='flex';
+    document.getElementById('app').classList.remove('show');
+  }
+});
+
+// ── INIT ──
+async function initApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  const nm=CUD&&CUD.name?CUD.name:(CU.displayName||'User');
+  const ini=nm.split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+  const av=document.getElementById('topbar-avatar');if(av)av.textContent=ini;
+  const sn=document.getElementById('sidebar-name');if(sn)sn.textContent=nm;
+  const sr=document.getElementById('sidebar-role');if(sr)sr.textContent=isAdmin?'Super Admin':'Member';
+  if(isAdmin){
+    ['nav-admin','add-memo-btn','add-event-btn','add-link-btn','add-alert-btn','add-roster-btn','add-batch-btn'].forEach(function(id){
+      const el=document.getElementById(id);if(el)el.style.display='flex';
+    });
+  }
+  startClock();setGreeting();
+  loadWeather();loadDailyQuote();
+  listenMemos();listenBanner();listenAlertsCount();
+  setupPresence();
+  selectRoom('general',null);
+  renderCalendar();loadLinks();loadRoster();loadAlerts();
+  loadPersonnel();loadAdminUsers();loadCategories();
+  loadFiles();loadDMList();loadGroupList();
+  updateConvUnits();renderNotifs();
+  loadWeatherLocSettings();
+  scheduleCalendarReminders();
+  navigate('dashboard');
+  // Color pickers init
+  initColorPicker('event-color-picker','event-selected-color','#3b82f6');
+  initColorPicker('link-color-picker','link-color-input','#3b82f6');
+}
+
+// ── CLOCK ──
+function startClock(){
+  function tick(){
+    const n=new Date(),h=n.getHours(),m=n.getMinutes(),s=n.getSeconds(),a=h>=12?'PM':'AM';
+    const h12=h%12||12;
+    const el=document.getElementById('topbar-clock');
+    if(el)el.textContent=h12+':'+pad(m)+':'+pad(s)+' '+a;
+  }
+  tick();setInterval(tick,1000);
+}
+function pad(n){return String(n).padStart(2,'0');}
+
+function setGreeting(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const nm=CUD&&CUD.name?CUD.name.split(' ')[0]:'';
+  const el=document.getElementById('dash-greeting');
+  if(el)el.textContent=g+(nm?', '+nm:'')+'!';
+}
+
+// ── NAVIGATE ──
+window.navigate=function(page){
+  document.querySelectorAll('.main-content').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  const el=document.getElementById('page-'+page);if(el)el.classList.add('active');
+  const nav=document.getElementById('nav-'+page);if(nav)nav.classList.add('active');
+  closeSidebar();
+  if(page==='chat'){loadChatOnline();selectRoom(chatRoom,null);}
+  if(page==='dashboard'){setGreeting();renderDashMemos();renderUpcomingEvts();loadAlerts();}
+  if(page==='profile')loadProfile();
+  if(page==='admin'){loadAdminUsers();loadCategories();loadWeatherLocSettings();}
+  if(page==='calendar')renderCalendar();
+  if(page==='personnel')loadPersonnel();
+  if(page==='files')loadFiles();
+};
+window.toggleSidebar=function(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('show');
+};
+window.closeSidebar=function(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+};
+
+// ── WEATHER ──
+async function loadWeather(){
+  const loc=weatherLocs[activeWeatherLoc]||weatherLocs[0];
+  try{
+    const url='https://api.open-meteo.com/v1/forecast?latitude='+loc.lat+'&longitude='+loc.lon+'&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,apparent_temperature,precipitation,uv_index&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,precipitation_sum,wind_speed_10m_max,uv_index_max&hourly=temperature_2m,precipitation_probability,weather_code&timezone=Asia/Manila&forecast_days=7';
+    const r=await fetch(url);const d=await r.json();
+    const c=d.current,dd=d.daily,dh=d.hourly;
+    const wi=wIcon(c.weather_code);
+    const tw=document.getElementById('topbar-weather-text');if(tw)tw.textContent=Math.round(c.temperature_2m)+'°C';
+    const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let fc='';
+    for(let i=0;i<7;i++){
+      const dt=new Date(dd.time[i]+'T00:00:00');
+      fc+='<div class="forecast-day"><div class="fd-day">'+(i===0?'Today':days[dt.getDay()])+'</div><div class="fd-icon">'+wIcon(dd.weather_code[i])+'</div><div class="fd-temp">'+Math.round(dd.temperature_2m_max[i])+'° / '+Math.round(dd.temperature_2m_min[i])+'°</div><div style="font-size:9px;color:var(--accent2);">'+dd.precipitation_probability_max[i]+'%</div></div>';
+    }
+    const uvColor=c.uv_index>=8?'var(--red)':c.uv_index>=6?'var(--amber)':'var(--green2)';
+    const html='<div class="weather-big"><div style="font-size:46px;">'+wi+'</div><div><div class="weather-temp-big">'+Math.round(c.temperature_2m)+'°C</div><div class="weather-desc">'+wDesc(c.weather_code)+'</div><div class="weather-loc">Feels like '+Math.round(c.apparent_temperature)+'°C · '+loc.name+'</div></div></div>'+
+      '<div class="weather-grid">'+
+      '<div class="weather-cell"><div class="weather-cell-val">'+c.relative_humidity_2m+'%</div><div class="weather-cell-lbl">Humidity</div></div>'+
+      '<div class="weather-cell"><div class="weather-cell-val">'+Math.round(c.wind_speed_10m)+' km/h</div><div class="weather-cell-lbl">Wind</div></div>'+
+      '<div class="weather-cell"><div class="weather-cell-val">'+dd.precipitation_probability_max[0]+'%</div><div class="weather-cell-lbl">Rain chance</div></div>'+
+      '<div class="weather-cell"><div class="weather-cell-val">'+c.precipitation+' mm</div><div class="weather-cell-lbl">Precipitation</div></div>'+
+      '<div class="weather-cell"><div class="weather-cell-val" style="color:'+uvColor+';">'+c.uv_index+'</div><div class="weather-cell-lbl">UV Index</div></div>'+
+      '<div class="weather-cell"><div class="weather-cell-val">'+Math.round(dd.wind_speed_10m_max[0])+' km/h</div><div class="weather-cell-lbl">Max Wind</div></div>'+
+      '</div>'+
+      '<div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;">7-Day Forecast</div>'+
+      '<div class="forecast-row" style="flex-wrap:wrap;gap:4px;">'+fc+'</div>';
+    ['dash-weather-content','weather-full-content'].forEach(function(id){const el=document.getElementById(id);if(el)el.innerHTML=html;});
+    // Hourly breakdown
+    const now=new Date().getHours();
+    let hHtml='<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">';
+    for(let i=now;i<now+12&&i<dh.time.length;i++){
+      const t=new Date(dh.time[i]);
+      hHtml+='<div style="flex-shrink:0;text-align:center;width:50px;"><div style="font-size:10px;color:var(--text2);">'+t.getHours()+'h</div><div style="font-size:18px;">'+wIcon(dh.weather_code[i])+'</div><div style="font-size:11px;font-weight:500;">'+Math.round(dh.temperature_2m[i])+'°</div><div style="font-size:10px;color:var(--accent2);">'+dh.precipitation_probability[i]+'%</div></div>';
+    }
+    hHtml+='</div>';
+    const wh=document.getElementById('weather-hourly');if(wh)wh.innerHTML=hHtml;
+    const wec=document.getElementById('weather-extra-card');if(wec)wec.style.display='block';
+  }catch(e){
+    const tw=document.getElementById('topbar-weather-text');if(tw)tw.textContent='N/A';
+    ['dash-weather-content','weather-full-content'].forEach(function(id){const el=document.getElementById(id);if(el)el.innerHTML='<div style="color:var(--text2);font-size:12px;">Weather unavailable. Retrying in 30s...</div>';});
+    setTimeout(loadWeather,30000);
+  }
+}
+function wIcon(c){if(c===0)return'☀️';if(c<=2)return'⛅';if(c<=3)return'☁️';if(c<=48)return'🌫️';if(c<=55)return'🌦️';if(c<=67)return'🌧️';if(c<=77)return'❄️';if(c<=82)return'🌦️';if(c<=99)return'⛈️';return'🌡️';}
+function wDesc(c){if(c===0)return'Clear sky';if(c<=2)return'Partly cloudy';if(c<=3)return'Overcast';if(c<=48)return'Foggy';if(c<=55)return'Drizzle';if(c<=67)return'Rainy';if(c<=77)return'Snowy';if(c<=82)return'Rain showers';if(c<=99)return'Thunderstorm';return'Unknown';}
+
+function renderWeatherLocTabs(){
+  const c=document.getElementById('weather-loc-tabs');if(!c)return;
+  c.innerHTML=weatherLocs.map(function(l,i){
+    return '<div class="weather-loc-tab'+(i===activeWeatherLoc?' active':'')+'" onclick="switchWeatherLoc('+i+')">'+esc(l.name)+'</div>';
+  }).join('');
+}
+window.switchWeatherLoc=function(i){
+  activeWeatherLoc=i;renderWeatherLocTabs();loadWeather();
+};
+async function loadWeatherLocSettings(){
+  try{
+    const snap=await db.doc('settings','weather_locations'.get());
+    if(snap.exists&&snap.data().list&&snap.data().list.length){
+      weatherLocs=[{name:'Pulilan, Bulacan',lat:14.9008,lon:120.8571}].concat(snap.data().list);
+    }
+  }catch(e){}
+  renderWeatherLocTabs();
+  // Render loc list in admin
+  const lc=document.getElementById('loc-list');
+  if(!lc)return;
+  lc.innerHTML=weatherLocs.slice(1).map(function(l,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">'+
+      '<span style="flex:1;font-size:12px;">'+esc(l.name)+'</span>'+
+      '<span style="font-size:11px;color:var(--text2);">'+l.lat+', '+l.lon+'</span>'+
+      '<i class="fa-solid fa-trash" style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="removeWeatherLoc('+i+')"></i></div>';
+  }).join('');
+}
+window.addWeatherLocation=async function(){
+  const nm=document.getElementById('new-loc-name').value.trim();
+  const lat=parseFloat(document.getElementById('new-loc-lat').value);
+  const lon=parseFloat(document.getElementById('new-loc-lon').value);
+  if(!nm||isNaN(lat)||isNaN(lon))return alert('Fill in name, latitude, and longitude.');
+  const extra=weatherLocs.slice(1).concat([{name:nm,lat,lon}]);
+  try{
+    await db.doc('settings'.set('weather_locations'),{list:extra});
+    document.getElementById('new-loc-name').value='';
+    document.getElementById('new-loc-lat').value='';
+    document.getElementById('new-loc-lon').value='';
+    await loadWeatherLocSettings();
+  }catch(e){alert('Failed: '+e.message);}
+};
+window.removeWeatherLoc=async function(i){
+  const extra=weatherLocs.slice(1);extra.splice(i,1);
+  try{await db.doc('settings'.set('weather_locations'),{list:extra});await loadWeatherLocSettings();}catch(e){}
+};
+
+// ── DAILY QUOTE ──
+async function loadDailyQuote(){
+  const today=new Date().toDateString();
+  if(localStorage.getItem('emr_qdate')===today){const q=localStorage.getItem('emr_quote');if(q){applyQ(q);return;}}
+  const fb=['\"The secret of getting ahead is getting started.\" — Mark Twain','\"Hard work beats talent when talent doesn\'t work hard.\" — Tim Notke','\"Excellence is not a destination but a continuous journey.\" — Brian Tracy','\"Ang tagumpay ay bunga ng tiyaga at pagsusumikap.\"','\"Walang shortcut sa tagumpay — trabaho lang.\"'];
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:150,messages:[{role:'user',content:'Give one short motivational quote (max 2 sentences) for a hardworking equipment maintenance team in the Philippines. Mix of English and Filipino quotes. Return only the quote and author, nothing else.'}]})});
+    if(!res.ok)throw new Error('API error');
+    const data=await res.json();
+    const q=data.content&&data.content[0]?data.content[0].text:fb[0];
+    localStorage.setItem('emr_quote',q);localStorage.setItem('emr_qdate',today);
+    applyQ(q);
+  }catch(e){applyQ(fb[new Date().getDate()%fb.length]);}
+}
+function applyQ(q){
+  const a=document.getElementById('topbar-quote');if(a)a.textContent=q;
+  const b=document.getElementById('dash-quote');if(b)b.textContent=q;
+}
+
+// ── BANNER ──
+function listenBanner(){
+  db.doc('settings/banner').onSnapshot(function(snap){
+    const txt=snap.data()&&snap.data().text?snap.data().text:'';
+    const b=document.getElementById('pinned-banner');const bt=document.getElementById('pinned-banner-text');
+    if(bt)bt.textContent=txt;if(b){if(txt)b.classList.add('show');else b.classList.remove('show');}
+    const bi=document.getElementById('banner-input');if(bi)bi.value=txt;
+  });
+}
+window.dismissBanner=function(){const b=document.getElementById('pinned-banner');if(b)b.classList.remove('show');};
+window.saveBanner=async function(){
+  const v=document.getElementById('banner-input').value.trim();
+  try{await db.doc('settings'.set('banner'),{text:v});alert('Banner saved!');}catch(e){alert('Failed: '+e.message);}
+};
+
+// ── MEMOS ──
+function listenMemos(){
+  db.collection('memos').orderBy('createdAt','desc').onSnapshot(function(snap){
+    memosData=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderMemos();renderDashMemos();updateMemoBadge();
+    // Notify if new memo
+    if(notifSettings.memo&&snap.docChanges){
+      snap.docChanges().forEach(function(ch){
+        if(ch.type==='added'&&ch.doc.data().author!=(CUD&&CUD.name)){
+          addNotif('📄 New memo: '+ch.doc.data().title,'memo');
+        }
+      });
+    }
+  });
+}
+window.setMemoFilter=function(f,el){
+  memoFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(function(p){p.classList.remove('active');});
+  el.classList.add('active');renderMemos();
+};
+window.renderMemos=function(){
+  const srch=(document.getElementById('memo-search')&&document.getElementById('memo-search').value||'').toLowerCase();
+  let data=memosData.slice();
+  if(memoFilter==='pinned')data=data.filter(function(m){return m.pinned;});
+  else if(memoFilter!=='all')data=data.filter(function(m){return m.category===memoFilter;});
+  if(srch)data=data.filter(function(m){return(m.title||'').toLowerCase().includes(srch)||(m.content||'').toLowerCase().includes(srch);});
+  const c=document.getElementById('memos-list-container');if(!c)return;
+  if(!data.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;padding:8px 0;">No memos found.</div>';return;}
+  c.innerHTML=data.map(memoHTML).join('');
+};
+function memoHTML(m){
+  const cc={urgent:'red',info:'blue',general:'',hr:'purple',safety:'amber',operations:'teal'};
+  const bc=cc[m.category]||'blue';
+  const cls=m.pinned?'pinned':m.category==='urgent'?'urgent':m.category==='info'?'info':'';
+  const acked=m.acks&&CU&&m.acks[CU.uid];
+  const ackCt=m.acks?Object.keys(m.acks).length:0;
+  const ts=m.createdAt&&m.createdAt.toDate?fmtDate(m.createdAt.toDate()):'Just now';
+  const reactions=m.reactions||{};
+  const reactionEmojis=['👍','❤️','😮','😂','👏'];
+  const rHtml=reactionEmojis.map(function(e){
+    const users=reactions[e]||{};const ct=Object.keys(users).length;
+    const reacted=CU&&users[CU.uid];
+    return '<div class="reaction-btn'+(reacted?' reacted':'')+'" onclick="event.stopPropagation();reactMemo(\''+m.id+'\',\''+e+'\')">'+e+(ct>0?' '+ct:'')+'</div>';
+  }).join('');
+  const attach=m.fileUrl?'<div style="margin-top:6px;font-size:11px;"><a href="'+m.fileUrl+'" target="_blank" style="color:var(--accent2);"><i class="fa-solid fa-paperclip"></i> '+esc(m.fileName||'Attachment')+'</a></div>':'';
+  return '<div class="memo-item '+cls+'" onclick="viewMemo(\''+m.id+'\')">'+
+    '<div class="memo-top">'+(m.pinned?'<i class="fa-solid fa-thumbtack" style="color:var(--amber);font-size:11px;margin-top:2px;flex-shrink:0;"></i>':'')+
+    '<div class="memo-title-text">'+esc(m.title||'Untitled')+'</div><span class="badge badge-'+bc+'">'+esc(m.category||'general')+'</span></div>'+
+    '<div class="memo-meta"><i class="fa-solid fa-user" style="font-size:10px;"></i> '+esc(m.author||'EMR')+' <i class="fa-solid fa-clock" style="font-size:10px;"></i> '+ts+'</div>'+
+    attach+
+    '<div class="memo-reactions" onclick="event.stopPropagation();">'+rHtml+'</div>'+
+    '<div class="memo-ack" onclick="event.stopPropagation();">'+
+    '<div class="ack-btn'+(acked?' acked':'')+'" onclick="ackMemo(\''+m.id+'\','+!!acked+')"><i class="fa-solid fa-check"></i> '+(acked?'Acknowledged':'Acknowledge')+'</div>'+
+    '<span style="font-size:11px;color:var(--text3);">'+ackCt+' noted</span></div></div>';
+}
+window.reactMemo=async function(id,emoji){
+  if(!CU)return;
+  try{
+    const mRef=db.doc('memos/'+id);const snap=await mRef.get();
+    const reactions=Object.assign({},snap.data()&&snap.data().reactions?snap.data().reactions:{});
+    if(!reactions[emoji])reactions[emoji]={};
+    if(reactions[emoji][CU.uid])delete reactions[emoji][CU.uid];
+    else reactions[emoji][CU.uid]=true;
+    await mRef.update({reactions:reactions});
+  }catch(e){console.error(e);}
+};
+function renderDashMemos(){
+  const c=document.getElementById('dash-memos-list');if(!c)return;
+  const top=memosData.slice(0,3);
+  if(!top.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No memos yet.</div>';return;}
+  c.innerHTML=top.map(function(m){
+    return '<div style="padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;" onclick="navigate(\'memos\')">'+
+      '<div style="font-size:12px;font-weight:500;">'+esc(m.title||'')+'</div>'+
+      '<div style="font-size:11px;color:var(--text2);margin-top:1px;">'+esc(m.author||'EMR')+' · '+(m.createdAt&&m.createdAt.toDate?fmtDate(m.createdAt.toDate()):'Just now')+'</div></div>';
+  }).join('');
+}
+function updateMemoBadge(){
+  const un=memosData.filter(function(m){return!(m.acks&&CU&&m.acks[CU.uid]);}).length;
+  const b=document.getElementById('memo-badge');if(b){b.textContent=un;b.style.display=un>0?'inline':'none';}
+}
+window.viewMemo=function(id){
+  const m=memosData.find(function(x){return x.id===id;});if(!m)return;
+  document.getElementById('view-memo-title').textContent=m.title||'';
+  document.getElementById('view-memo-meta').innerHTML='<span class="badge badge-blue">'+esc(m.category||'general')+'</span> &nbsp;By '+esc(m.author||'EMR')+' · '+(m.createdAt&&m.createdAt.toDate?fmtDate(m.createdAt.toDate()):'');
+  document.getElementById('view-memo-content').textContent=m.content||'';
+  const att=document.getElementById('view-memo-attachment');
+  att.innerHTML=m.fileUrl?'<a href="'+m.fileUrl+'" target="_blank" class="btn btn-ghost btn-sm"><i class="fa-solid fa-paperclip"></i> '+esc(m.fileName||'Download Attachment')+'</a>':'';
+  const reactions=m.reactions||{};
+  const reactionEmojis=['👍','❤️','😮','😂','👏'];
+  const vr=document.getElementById('view-memo-reactions');
+  vr.innerHTML=reactionEmojis.map(function(e){
+    const ct=Object.keys(reactions[e]||{}).length;
+    const reacted=CU&&reactions[e]&&reactions[e][CU.uid];
+    return '<div class="reaction-btn'+(reacted?' reacted':'')+'" onclick="reactMemo(\''+id+'\',\''+e+'\')" style="min-width:40px;">'+e+(ct>0?' '+ct:'')+'</div>';
+  }).join('');
+  const ab=document.getElementById('view-memo-admin-btns');
+  ab.innerHTML=isAdmin?'<button class="btn btn-ghost btn-sm" onclick="editMemo(\''+id+'\')"><i class="fa-solid fa-pen"></i> Edit</button><button class="btn btn-red btn-sm" onclick="deleteMemo(\''+id+'\')"><i class="fa-solid fa-trash"></i> Delete</button>':'';
+  document.getElementById('memo-view-modal').classList.add('open');
+};
+window.ackMemo=async function(id,already){
+  if(already||!CU)return;
+  try{const mRef=db.doc('memos/'+id);const snap=await mRef.get();const acks=Object.assign({},snap.data()&&snap.data().acks?snap.data().acks:{});acks[CU.uid]=true;await mRef.update({acks:acks});}
+  catch(e){console.error(e);}
+};
+window.openMemoModal=function(){
+  document.getElementById('memo-edit-id').value='';
+  document.getElementById('memo-title-input').value='';
+  document.getElementById('memo-content-input').value='';
+  document.getElementById('memo-cat-input').value='general';
+  document.getElementById('memo-pin-input').checked=false;
+  document.getElementById('memo-file-input').value='';
+  document.getElementById('memo-modal-title').textContent='New Memo';
+  document.getElementById('memo-modal').classList.add('open');
+  closeModal('memo-view-modal');
+};
+window.editMemo=function(id){
+  const m=memosData.find(function(x){return x.id===id;});if(!m)return;
+  document.getElementById('memo-edit-id').value=id;
+  document.getElementById('memo-title-input').value=m.title||'';
+  document.getElementById('memo-content-input').value=m.content||'';
+  document.getElementById('memo-cat-input').value=m.category||'general';
+  document.getElementById('memo-pin-input').checked=!!m.pinned;
+  document.getElementById('memo-modal-title').textContent='Edit Memo';
+  document.getElementById('memo-modal').classList.add('open');closeModal('memo-view-modal');
+};
+window.saveMemo=async function(){
+  const id=document.getElementById('memo-edit-id').value;
+  const data={title:document.getElementById('memo-title-input').value.trim(),content:document.getElementById('memo-content-input').value.trim(),category:document.getElementById('memo-cat-input').value,pinned:document.getElementById('memo-pin-input').checked,author:CUD&&CUD.name?CUD.name:(CU&&CU.displayName?CU.displayName:'EMR'),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!data.title)return alert('Please enter a title.');
+  const btn=document.getElementById('memo-save-btn');if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    // Handle file attachment via base64 (simple approach without Storage)
+    const fileInput=document.getElementById('memo-file-input');
+    if(fileInput&&fileInput.files&&fileInput.files[0]){
+      const file=fileInput.files[0];
+      if(file.size>500000)return alert('File too large. Max 500KB for attachments.');
+      const b64=await fileToBase64(file);
+      data.fileUrl='data:'+file.type+';base64,'+b64;
+      data.fileName=file.name;
+    }
+    if(id){await db.doc('memos'.update(id),data);}
+    else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();data.acks={};data.reactions={};await db.collection('memos').add(data);addNotif('📄 New memo posted: '+data.title,'memo');}
+    closeModal('memo-modal');
+  }catch(e){alert('Failed to save memo: '+e.message);}
+  finally{if(btn){btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-save"></i> Save';}}
+};
+window.deleteMemo=async function(id){
+  if(!confirm('Delete this memo?'))return;
+  try{await db.doc('memos',id.delete());closeModal('memo-view-modal');}
+  catch(e){alert('Delete failed: '+e.message);}
+};
+function fileToBase64(file){return new Promise(function(res,rej){const r=new FileReader();r.onload=function(){res(r.result.split(',')[1]);};r.onerror=rej;r.readAsDataURL(file);});}
+
+// ── CALENDAR ──
+const EVENT_COLORS=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#ec4899','#f97316','#84cc16','#06b6d4'];
+function initColorPicker(containerId,hiddenId,defaultColor){
+  const c=document.getElementById(containerId);if(!c)return;
+  c.innerHTML=EVENT_COLORS.map(function(col){
+    return '<div onclick="selectColor(\''+containerId+'\',\''+hiddenId+'\',\''+col+'\')" style="width:24px;height:24px;border-radius:50%;background:'+col+';cursor:pointer;border:2px solid transparent;transition:border 0.15s;" data-color="'+col+'"></div>';
+  }).join('');
+  // set default
+  selectColor(containerId,hiddenId,defaultColor);
+}
+window.selectColor=function(cid,hid,color){
+  const c=document.getElementById(cid);if(!c)return;
+  c.querySelectorAll('div[data-color]').forEach(function(d){d.style.border=d.dataset.color===color?'2px solid #fff':'2px solid transparent';});
+  const h=document.getElementById(hid);if(h)h.value=color;
+};
+window.changeCalMonth=function(d){
+  calM+=d;if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;}renderCalendar();
+};
+async function renderCalendar(){
+  const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const el=document.getElementById('cal-month-name');if(el)el.textContent=MN[calM]+' '+calY;
+  try{
+    // Team events
+    const snap=await db.collection('events'.get());
+    calEvts=snap.docs.map(function(d){return Object.assign({id:d.id,personal:false},d.data());});
+    // Personal events
+    if(CU){
+      const pSnap=await db.collection('users',CU.uid,'personal_events'.get());
+      calPersonalEvts=pSnap.docs.map(function(d){return Object.assign({id:d.id,personal:true},d.data());});
+    }
+  }catch(e){}
+  const allEvts=calEvts.concat(calPersonalEvts);
+  const grid=document.getElementById('cal-grid');if(!grid)return;
+  grid.innerHTML='';
+  const first=new Date(calY,calM,1).getDay();
+  const daysInMonth=new Date(calY,calM+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<first;i++){
+    const c=document.createElement('div');c.className='cal-cell other-month';
+    const pd=new Date(calY,calM,-(first-i-1));c.innerHTML='<span style="color:#bbb;">'+pd.getDate()+'</span>';grid.appendChild(c);
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=calY+'-'+pad(calM+1)+'-'+pad(d);
+    const isT=today.getFullYear()===calY&&today.getMonth()===calM&&today.getDate()===d;
+    const dayEvts=allEvts.filter(function(e){return e.date===ds;});
+    const isHol=!!PHDAYS[ds];
+    const c=document.createElement('div');
+    c.className='cal-cell'+(isT?' today':'')+(isHol&&!isT?' ph-holiday':'');
+    c.style.background=isT?'#3b82f6':(isHol?'rgba(245,158,11,0.15)':'#f9fafb');
+    c.style.color=isT?'#fff':'#1a1a2e';
+    let dots='<div class="evt-dots">';
+    dayEvts.slice(0,3).forEach(function(e){dots+='<div class="evt-dot" style="background:'+(e.color||'#10b981')+'"></div>';});
+    if(isHol)dots+='<div class="evt-dot" style="background:#f59e0b"></div>';
+    dots+='</div>';
+    c.innerHTML='<span>'+d+'</span>'+dots;
+    c.onclick=(function(s){return function(){showDayEvts(s,allEvts);};})(ds);
+    grid.appendChild(c);
+  }
+  renderUpcomingEvts(allEvts);
+}
+function showDayEvts(ds,allEvts){
+  const evs=allEvts.filter(function(e){return e.date===ds;});
+  const hol=PHDAYS[ds];
+  if(!evs.length&&!hol)return;
+  let msg='Events on '+ds+':\n';
+  if(hol)msg+='🎉 '+hol+' (PH Holiday)\n';
+  evs.forEach(function(e){msg+='• '+e.name+(e.time?' at '+e.time:'')+(e.type?' ('+e.type+')':'')+(e.personal?' [Personal]':'')+'\n';});
+  alert(msg);
+}
+function renderUpcomingEvts(allEvts){
+  const td=new Date().toISOString().split('T')[0];
+  if(!allEvts)allEvts=(calEvts||[]).concat(calPersonalEvts||[]);
+  const up=allEvts.filter(function(e){return e.date>=td;}).sort(function(a,b){return a.date.localeCompare(b.date);});
+  const ph=Object.entries(PHDAYS).filter(function(x){return x[0]>=td;}).map(function(x){return{name:x[1],date:x[0],type:'PH Holiday',color:'#f59e0b',personal:false};});
+  const combined=up.concat(ph).sort(function(a,b){return a.date.localeCompare(b.date);}).slice(0,12);
+  const c=document.getElementById('events-upcoming-list');
+  if(c){
+    if(!combined.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No upcoming events.</div>';}
+    else c.innerHTML=combined.map(function(e){
+      return '<div class="event-item">'+
+        '<div class="event-dot" style="background:'+(e.color||'#10b981')+'"></div>'+
+        '<div><div class="event-name">'+esc(e.name)+(e.personal?' <span style="font-size:9px;color:var(--purple);">[Personal]</span>':'')+'</div>'+
+        '<div class="event-time">'+fmtDate(new Date(e.date+'T00:00:00'))+(e.time?' · '+e.time:'')+(e.type?' · '+e.type:'')+'</div></div>'+
+        ((!e.personal&&isAdmin&&e.id)||e.personal&&CU?'<i class="fa-solid fa-trash" style="font-size:11px;color:var(--text3);cursor:pointer;margin-left:auto;" onclick="deleteEvent(\''+e.id+'\','+!!e.personal+')"></i>':'')+
+        '</div>';
+    }).join('');
+  }
+  const dc=document.getElementById('dash-events-list');
+  if(dc){
+    if(!combined.length){dc.innerHTML='<div style="color:var(--text2);font-size:12px;">No upcoming events.</div>';}
+    else dc.innerHTML=combined.slice(0,4).map(function(e){
+      return '<div style="padding:5px 0;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:500;">'+esc(e.name)+'</div><div style="font-size:11px;color:var(--text2);">'+fmtDate(new Date(e.date+'T00:00:00'))+'</div></div>';
+    }).join('');
+  }
+}
+window.openEventModal=function(isTeam){
+  document.getElementById('event-edit-id').value='';
+  document.getElementById('event-is-personal').value=isTeam?'false':'true';
+  document.getElementById('event-name-input').value='';
+  document.getElementById('event-date-input').value=new Date().toISOString().split('T')[0];
+  document.getElementById('event-time-input').value='';
+  document.getElementById('event-type-input').value='';
+  document.getElementById('event-desc-input').value='';
+  document.getElementById('event-recurring-input').checked=false;
+  document.getElementById('event-modal-title').textContent=isTeam?'New Team Event':'New Personal Event';
+  const badge=document.getElementById('event-scope-badge');
+  badge.innerHTML=isTeam?'<span class="badge badge-green"><i class="fa-solid fa-users"></i> Visible to all members</span>':'<span class="badge badge-purple"><i class="fa-solid fa-lock"></i> Only visible to you</span>';
+  initColorPicker('event-color-picker','event-selected-color',isTeam?'#10b981':'#8b5cf6');
+  document.getElementById('event-modal').classList.add('open');
+};
+window.saveEvent=async function(){
+  const isPersonal=document.getElementById('event-is-personal').value==='true';
+  const color=document.getElementById('event-selected-color')?document.getElementById('event-selected-color').value:'#10b981';
+  const data={name:document.getElementById('event-name-input').value.trim(),date:document.getElementById('event-date-input').value,time:document.getElementById('event-time-input').value,type:document.getElementById('event-type-input').value.trim(),color:color,desc:document.getElementById('event-desc-input').value.trim(),recurring:document.getElementById('event-recurring-input').checked,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!data.name||!data.date)return alert('Name and date required.');
+  try{
+    if(isPersonal&&CU){await db.collection('users'.add(CU.uid,'personal_events'),data);}
+    else{await db.collection('events').add(data);}
+    closeModal('event-modal');renderCalendar();
+  }catch(e){alert('Failed to save event: '+e.message);}
+};
+window.deleteEvent=async function(id,isPersonal){
+  if(!confirm('Delete event?'))return;
+  try{
+    if(isPersonal&&CU){await db.doc('users',CU.uid,'personal_events',id.delete());}
+    else{await db.doc('events',id.delete());}
+    renderCalendar();
+  }catch(e){alert('Failed: '+e.message);}
+};
+
+// ── CALENDAR REMINDERS ──
+function scheduleCalendarReminders(){
+  if(!notifSettings.cal)return;
+  setInterval(async function(){
+    if(!CU)return;
+    try{
+      const now=new Date();
+      const allEvts=calEvts.concat(calPersonalEvts);
+      allEvts.forEach(function(e){
+        if(!e.date)return;
+        const evDate=new Date(e.date+'T'+(e.time||'00:00'));
+        const diff=(evDate-now)/60000;
+        if(diff>0&&diff<=60){
+          const key='reminder_'+e.id;
+          if(!localStorage.getItem(key)){
+            localStorage.setItem(key,'1');
+            addNotif('⏰ Reminder: '+e.name+' in '+Math.round(diff)+' minutes','cal');
+          }
+        }
+      });
+    }catch(err){}
+  },60000);
+}
+
+// ── QUICK LINKS ──
+async function loadLinks(){
+  try{
+    const snap=await db.collection('links'.get());
+    const links=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    const cats=[...new Set(links.map(function(l){return l.category||'General';}))];
+    const c=document.getElementById('links-container');if(!c)return;
+    if(!links.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No links added yet.</div>';return;}
+    c.innerHTML=cats.map(function(cat){
+      const catLinks=links.filter(function(l){return(l.category||'General')===cat;});
+      return '<div class="cat-label">'+esc(cat)+'</div><div class="links-grid">'+catLinks.map(function(l){
+        return '<div class="link-card" onclick="openLink(\''+esc(l.url||'#')+'\')">'+
+          '<div style="display:flex;align-items:center;gap:9px;">'+
+          '<div class="link-card-icon" style="background:'+(l.color||'#3b82f6')+'"><i class="fa-solid '+(l.icon||'fa-link')+'"></i></div>'+
+          '<div><div class="link-card-name">'+esc(l.name||'')+'</div><div class="link-card-sub">'+esc(l.desc||'')+'</div></div></div>'+
+          '<div class="link-card-foot"><div class="link-health checking" id="lh-'+l.id+'"></div>'+
+          '<div style="display:flex;gap:5px;">'+
+          (isAdmin?'<i class="fa-solid fa-pen" style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="event.stopPropagation();editLink(\''+l.id+'\')"></i><i class="fa-solid fa-trash" style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="event.stopPropagation();deleteLink(\''+l.id+'\')"></i>':'')+
+          '</div></div></div>';
+      }).join('')+'</div>';
+    }).join('');
+    links.forEach(function(l){setTimeout(function(){const el=document.getElementById('lh-'+l.id);if(el){el.classList.remove('checking');el.classList.add('up');}},1200+Math.random()*1500);});
+  }catch(e){}
+}
+window.openLink=function(url){window.open(url,'_blank');};
+window.openLinkModal=function(){
+  ['link-edit-id','link-name-input','link-url-input','link-desc-input','link-cat-input'].forEach(function(id){const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('link-icon-input').value='fa-link';
+  document.getElementById('link-modal-title').textContent='New Link';
+  initColorPicker('link-color-picker','link-color-input','#3b82f6');
+  previewLinkIcon();
+  document.getElementById('link-modal').classList.add('open');
+};
+window.previewLinkIcon=function(){
+  const icon=document.getElementById('link-icon-input');const prev=document.getElementById('link-icon-preview');
+  const color=document.getElementById('link-color-input');
+  if(icon&&prev){prev.innerHTML='<i class="fa-solid '+esc(icon.value||'fa-link')+'" style="color:'+(color?color.value:'#3b82f6')+'"></i>';}
+};
+window.editLink=async function(id){
+  try{
+    const snap=await db.doc('links',id.get());const l=snap.data();
+    document.getElementById('link-edit-id').value=id;
+    document.getElementById('link-name-input').value=l.name||'';
+    document.getElementById('link-url-input').value=l.url||'';
+    document.getElementById('link-desc-input').value=l.desc||'';
+    document.getElementById('link-cat-input').value=l.category||'';
+    document.getElementById('link-icon-input').value=l.icon||'fa-link';
+    initColorPicker('link-color-picker','link-color-input',l.color||'#3b82f6');
+    document.getElementById('link-modal-title').textContent='Edit Link';
+    previewLinkIcon();
+    document.getElementById('link-modal').classList.add('open');
+  }catch(e){}
+};
+window.saveLink=async function(){
+  const id=document.getElementById('link-edit-id').value;
+  const data={name:document.getElementById('link-name-input').value.trim(),url:document.getElementById('link-url-input').value.trim(),desc:document.getElementById('link-desc-input').value.trim(),category:document.getElementById('link-cat-input').value.trim()||'General',icon:document.getElementById('link-icon-input').value.trim()||'fa-link',color:document.getElementById('link-color-input').value||'#3b82f6'};
+  if(!data.name||!data.url)return alert('Name and URL required.');
+  try{
+    if(id)await db.doc('links'.update(id),data);
+    else await db.collection('links').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
+    closeModal('link-modal');loadLinks();
+  }catch(e){alert('Failed to save link: '+e.message);}
+};
+window.deleteLink=async function(id){
+  if(!confirm('Delete this link?'))return;
+  try{await db.doc('links',id.delete());loadLinks();}catch(e){alert('Failed: '+e.message);}
+};
+
+// ── FILE LIBRARY ──
+async function loadFiles(){
+  try{
+    const snap=await db.collection('files').orderBy('createdAt','desc').get();
+    const files=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    window._filesCache=files;
+    const srch=(document.getElementById('file-search')&&document.getElementById('file-search').value||'').toLowerCase();
+    renderFiles(srch?files.filter(function(f){return f.name.toLowerCase().includes(srch);}):files);
+  }catch(e){}
+}
+function renderFiles(files){
+  const srch=(document.getElementById('file-search')&&document.getElementById('file-search').value||'').toLowerCase();
+  const data=(files||[]).filter(function(f){return!srch||f.name.toLowerCase().includes(srch);});
+  const c=document.getElementById('files-container');if(!c)return;
+  if(!data.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No files uploaded yet.</div>';return;}
+  c.innerHTML=data.map(function(f){
+    const icon=f.type&&f.type.includes('image')?'fa-image':f.type&&f.type.includes('pdf')?'fa-file-pdf':f.type&&f.type.includes('spreadsheet')||f.name.includes('.xlsx')?'fa-file-excel':'fa-file';
+    const bgColor=f.type&&f.type.includes('image')?'var(--greenbg)':f.type&&f.type.includes('pdf')?'var(--redbg)':'var(--accentbg)';
+    const iconColor=f.type&&f.type.includes('image')?'var(--green2)':f.type&&f.type.includes('pdf')?'var(--red)':'var(--accent2)';
+    return '<div class="file-item">'+
+      '<div class="file-icon" style="background:'+bgColor+';color:'+iconColor+';"><i class="fa-solid '+icon+'"></i></div>'+
+      '<div style="flex:1;min-width:0;"><div class="file-name">'+esc(f.name)+'</div><div class="file-meta">'+esc(f.uploader||'EMR')+' · '+fmtDate(f.createdAt&&f.createdAt.toDate?f.createdAt.toDate():new Date())+(f.size?' · '+Math.round(f.size/1024)+'KB':'')+'</div></div>'+
+      '<div style="display:flex;gap:6px;">'+
+      '<a href="'+f.url+'" target="_blank" download="'+f.name+'" class="btn btn-ghost btn-sm"><i class="fa-solid fa-download"></i></a>'+
+      (isAdmin?'<button class="btn btn-red btn-sm" onclick="deleteFile(\''+f.id+'\')"><i class="fa-solid fa-trash"></i></button>':'')+
+      '</div></div>';
+  }).join('');
+}
+window.renderFiles=function(){
+  const srch=(document.getElementById('file-search')&&document.getElementById('file-search').value||'').toLowerCase();
+  if(!window._filesCache){loadFiles();return;}
+  renderFiles(window._filesCache.filter(function(f){return!srch||f.name.toLowerCase().includes(srch);}));
+};
+window.uploadFile=async function(input){
+  if(!input.files||!input.files.length)return;
+  const files=Array.from(input.files);
+  for(const file of files){
+    if(file.size>2000000){alert('File "'+file.name+'" too large. Max 2MB per file.');continue;}
+    try{
+      const b64=await fileToBase64(file);
+      const url='data:'+file.type+';base64,'+b64;
+      await db.collection('files').add({name:file.name,type:file.type,size:file.size,url:url,uploader:CUD&&CUD.name?CUD.name:'EMR',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    }catch(e){alert('Upload failed for '+file.name+': '+e.message);}
+  }
+  input.value='';loadFiles();
+};
+window.deleteFile=async function(id){
+  if(!confirm('Delete this file?'))return;
+  try{await db.doc('files',id.delete());loadFiles();}catch(e){}
+};
+
+// ── CHAT ──
+window.selectRoom=function(room,el){
+  chatRoom=room;
+  document.querySelectorAll('.chat-room-item').forEach(function(x){x.classList.remove('active');});
+  if(el)el.classList.add('active');
+  else{const ri=document.getElementById('room-item-'+room);if(ri)ri.classList.add('active');}
+  const isGeneral=room==='general';const isDM=room.startsWith('dm_');const isGroup=room.startsWith('group_');
+  let rName='General',rSub='Team-wide channel',rIcon='fa-hashtag',rBg='var(--accentbg)',rColor='var(--accent2)';
+  if(isDM){
+    // Parse DM: room = 'dm_' + [uid1,uid2].sort().join('_')
+    const dmStr=room.substring(3); // remove 'dm_'
+    const cuLen=CU.uid.length;
+    let uid;
+    if(dmStr.startsWith(CU.uid+'_'))uid=dmStr.substring(cuLen+1);
+    else if(dmStr.endsWith('_'+CU.uid))uid=dmStr.substring(0,dmStr.length-cuLen-1);
+    else uid=dmStr.split('_').find(function(p){return p!==CU.uid;})||dmStr;
+    const u=allUsers.find(function(x){return x.id===uid;});
+    rName=u?u.name:'Direct Message';rSub='Private conversation';rIcon='fa-user';rBg='var(--greenbg)';rColor='var(--green2)';
+  }else if(isGroup){
+    rIcon='fa-users';rBg='var(--purplebg)';rColor='var(--purple)';rSub='Group chat';
+    // Try to get group name from DOM
+    const gEl=document.getElementById('room-item-'+room);
+    const gName=gEl&&gEl.querySelector('.chat-room-name')?gEl.querySelector('.chat-room-name').textContent:'Group Chat';
+    rName=gName;
+  }
+  const rni=document.getElementById('chat-room-icon');if(rni){rni.style.background=rBg;rni.innerHTML='<i class="fa-solid '+rIcon+'" style="color:'+rColor+';"></i>';}
+  const rnn=document.getElementById('chat-room-name');if(rnn)rnn.textContent=rName;
+  const rns=document.getElementById('chat-room-sub');if(rns)rns.textContent=rSub;
+  const ci=document.getElementById('chat-input');if(ci)ci.placeholder='Message...';
+  // Load pinned msg
+  loadPinnedMsg(room);
+  if(chatUnsub)chatUnsub();
+  chatUnsub=db.collection('chat_rooms/'+room+'/messages').orderBy('createdAt','asc').limitToLast(100).onSnapshot(function(snap){
+    const msgs=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderChat(msgs);
+    // Notify new chat messages
+    if(notifSettings.chat&&snap.docChanges){
+      snap.docChanges().forEach(function(ch){
+        if(ch.type==='added'&&ch.doc.data().uid!==CU.uid){
+          const n=document.getElementById('page-chat');
+          if(!n||!n.classList.contains('active')){
+            addNotif('💬 '+ch.doc.data().author+': '+ch.doc.data().text.substring(0,40),'chat');
+          }
+        }
+      });
+    }
+  });
+};
+
+async function loadPinnedMsg(room){
+  try{
+    const snap=await db.doc('chat_rooms',room,'meta','pinned'.get());
+    const pmb=document.getElementById('pinned-msg-bar');const pmt=document.getElementById('pinned-msg-text');
+    if(snap.exists&&snap.data().text){
+      pinnedMsgData={text:snap.data().text,room};
+      if(pmt)pmt.textContent=snap.data().text;if(pmb)pmb.classList.add('show');
+    }else{if(pmb)pmb.classList.remove('show');}
+  }catch(e){}
+}
+
+function renderChat(msgs){
+  const c=document.getElementById('chat-messages');if(!c)return;
+  let lastDate='';
+  c.innerHTML=msgs.map(function(m){
+    const mine=CU&&m.uid===CU.uid;
+    const ini=(m.author||'?').split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+    const tm=m.createdAt&&m.createdAt.toDate?fmtTime(m.createdAt.toDate()):'';
+    const dateStr=m.createdAt&&m.createdAt.toDate?fmtDate(m.createdAt.toDate()):'';
+    let divider='';
+    if(dateStr&&dateStr!==lastDate){divider='<div class="chat-date-divider">'+dateStr+'</div>';lastDate=dateStr;}
+    const readReceipt=mine&&m.readBy?'<span class="chat-read-receipt"><i class="fa-solid fa-check-double"></i></span>':'';
+    let bubble='';
+    if(m.imageUrl){
+      bubble='<img src="'+m.imageUrl+'" style="max-width:200px;max-height:200px;border-radius:8px;cursor:pointer;display:block;" onclick="previewImage(\''+m.imageUrl+'\')" onerror="this.style.display=\'none\'"/>';
+    }else{
+      bubble=esc(m.text||'');
+    }
+    // Message actions
+    const canDelete=mine||isAdmin;
+    const canPin=isAdmin;
+    const actHtml='<div class="chat-msg-actions" style="'+(mine?'right:0;':'left:0;')+'">'+
+      (canPin?'<button class="chat-msg-action-btn" onclick="pinMessage(\''+m.id+'\',\''+esc(m.text||'')+'\',\''+chatRoom+'\')" title="Pin"><i class="fa-solid fa-thumbtack"></i></button>':'')+
+      (canDelete?'<button class="chat-msg-action-btn" onclick="deleteMsg(\''+m.id+'\')" title="Delete"><i class="fa-solid fa-trash"></i></button>':'')+
+      '</div>';
+    return divider+'<div class="chat-msg'+(mine?' mine':'')+'">'+
+      '<div class="chat-avatar" style="background:'+(mine?'var(--accent)':'var(--bg4)')+';color:'+(mine?'#fff':'var(--text2)')+';">'+ini+'</div>'+
+      '<div class="chat-msg-wrap">'+(!mine?'<div class="chat-bubble-name">'+esc(m.author||'User')+'</div>':'')+
+      '<div class="chat-bubble" style="position:relative;">'+actHtml+bubble+'</div>'+
+      '<div class="chat-bubble-meta"><div class="chat-bubble-time">'+tm+'</div>'+readReceipt+'</div>'+
+      '</div></div>';
+  }).join('');
+  c.scrollTop=c.scrollHeight;
+  // Mark as read
+  if(CU)msgs.forEach(function(m){
+    if(m.uid!==CU.uid&&!(m.readBy&&m.readBy[CU.uid])){
+      db.doc('chat_rooms'.update(chatRoom,'messages',m.id),{['readBy.'+CU.uid]:true}).catch(function(){});
+    }
+  });
+}
+
+window.chatKeydown=function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}
+};
+window.autoResizeTextarea=function(el){
+  el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';
+};
+window.sendChatMessage=async function(){
+  const inp=document.getElementById('chat-input');
+  const txt=inp&&inp.value.trim();if(!txt||!CU)return;
+  inp.value='';inp.style.height='auto';
+  try{
+    await db.collection('chat_rooms'.add(chatRoom,'messages'),{
+      text:txt,uid:CU.uid,
+      author:CUD&&CUD.name?CUD.name:(CU.displayName||'User'),
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),readBy:{[CU.uid]:true}
+    });
+    const el=document.getElementById('room-last-'+chatRoom);if(el)el.textContent=txt.substring(0,28);
+  }catch(e){if(inp)inp.value=txt;console.error('Chat send failed:',e);}
+};
+window.sendChatImage=async function(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  if(file.size>500000){alert('Image too large. Max 500KB.');return;}
+  try{
+    const b64=await fileToBase64(file);
+    const url='data:'+file.type+';base64,'+b64;
+    await db.collection('chat_rooms'.add(chatRoom,'messages'),{
+      imageUrl:url,text:'[Image]',uid:CU.uid,
+      author:CUD&&CUD.name?CUD.name:(CU.displayName||'User'),
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),readBy:{[CU.uid]:true}
+    });
+  }catch(e){alert('Failed to send image: '+e.message);}
+  input.value='';
+};
+window.deleteMsg=async function(msgId){
+  if(!confirm('Delete this message?'))return;
+  try{await db.doc('chat_rooms',chatRoom,'messages',msgId.delete());}
+  catch(e){alert('Failed: '+e.message);}
+};
+window.pinMessage=async function(msgId,txt,room){
+  try{
+    await db.doc('chat_rooms'.set(room,'meta','pinned'),{text:txt,msgId:msgId,pinnedBy:CU.uid});
+    loadPinnedMsg(room);
+  }catch(e){}
+};
+window.previewImage=function(url){
+  document.getElementById('img-preview-src').src=url;
+  document.getElementById('img-preview-modal').classList.add('open');
+};
+
+// ── DM & GROUP CHAT ──
+async function loadDMList(){
+  if(!CU)return;
+  try{
+    const snap=await db.collection('users'.get());
+    allUsers=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}).filter(function(u){return u.id!==CU.uid;});
+    const c=document.getElementById('dm-list');if(!c)return;
+    c.innerHTML=allUsers.map(function(u){
+      const roomId='dm_'+[CU.uid,u.id].sort().join('_');
+      const ini=(u.name||'?').split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+      const online=!!onlineU[u.id];
+      return '<div class="chat-room-item" id="room-item-'+roomId+'" onclick="selectRoom(\''+roomId+'\',this)">'+
+        '<div class="chat-room-icon" style="background:var(--bg4);font-size:11px;font-weight:600;color:var(--text2);position:relative;">'+ini+
+        (online?'<div style="position:absolute;bottom:0;right:0;width:8px;height:8px;border-radius:50%;background:var(--green);border:1px solid var(--bg2);"></div>':'')+
+        '</div>'+
+        '<div style="min-width:0;"><div class="chat-room-name">'+esc(u.name||'User')+'</div><div class="chat-room-last">'+esc(u.dept||'')+'</div></div></div>';
+    }).join('');
+  }catch(e){}
+}
+async function loadGroupList(){
+  if(!CU)return;
+  try{
+    const snap=await db.collection('group_chats').where('members','array-contains',CU.uid).get();
+    const c=document.getElementById('group-list');if(!c)return;
+    c.innerHTML=snap.docs.map(function(d){
+      const g=d.data();const roomId='group_'+d.id;
+      return '<div class="chat-room-item" id="room-item-'+roomId+'" onclick="selectRoom(\''+roomId+'\',this)">'+
+        '<div class="chat-room-icon" style="background:var(--purplebg);color:var(--purple);"><i class="fa-solid fa-users" style="font-size:12px;"></i></div>'+
+        '<div style="min-width:0;"><div class="chat-room-name">'+esc(g.name||'Group')+'</div><div class="chat-room-last">'+g.members.length+' members</div></div></div>';
+    }).join('');
+  }catch(e){}
+}
+window.openCreateGroupModal=function(){
+  document.getElementById('group-name-input').value='';
+  const c=document.getElementById('group-members-list');
+  c.innerHTML=allUsers.map(function(u){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;">'+
+      '<input type="checkbox" value="'+u.id+'" style="width:auto;"/> '+esc(u.name||'')+'</label>';
+  }).join('');
+  document.getElementById('create-group-modal').classList.add('open');
+};
+window.createGroupChat=async function(){
+  const name=document.getElementById('group-name-input').value.trim();
+  if(!name)return alert('Group name required.');
+  const checked=Array.from(document.querySelectorAll('#group-members-list input:checked')).map(function(i){return i.value;});
+  if(!checked.length)return alert('Select at least one member.');
+  const members=[CU.uid].concat(checked);
+  try{
+    await db.collection('group_chats').add({name:name,members:members,createdBy:CU.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    closeModal('create-group-modal');loadGroupList();
+  }catch(e){alert('Failed: '+e.message);}
+};
+
+// ── PRESENCE ──
+function setupPresence(){
+  if(!CU)return;
+  const pr=rtdb.ref('presence/'+CU.uid);
+  pr.set({name:CUD&&CUD.name?CUD.name:(CU.displayName||'User'),uid:CU.uid,online:true,dept:CUD&&CUD.dept?CUD.dept:'',lastSeen:firebase.database.ServerValue.TIMESTAMP});
+  pr.onDisconnect().remove();
+  rtdb.ref('presence').on('value',function(snap){
+    onlineU={};
+    snap.forEach(function(c){const d=c.val();if(d&&d.online)onlineU[c.key]=d;});
+    updateOnline();renderPersonnel();loadDMList();
+  });
+  window.addEventListener('beforeunload',function(){try{set(pr,null);}catch(e){}});
+}
+function updateOnline(){
+  const c=document.getElementById('chat-online-list');if(!c)return;
+  const users=Object.values(onlineU);
+  c.innerHTML='<div class="online-list-title">Online ('+users.length+')</div>'+
+    users.map(function(u){return '<div class="online-user-row"><div class="online-user-dot" style="background:var(--green);"></div><div class="online-user-name">'+esc(u.name||'User')+'</div></div>';}).join('');
+}
+function loadChatOnline(){updateOnline();}
+
+// ── AI ASSISTANT — FIXED with proper headers ──
+window.sendAiMessage=async function(){
+  const inp=document.getElementById('ai-input');const txt=inp&&inp.value.trim();if(!txt)return;
+  inp.value='';
+  aiHist.push({role:'user',content:txt});
+  const c=document.getElementById('ai-messages');if(!c)return;
+  c.innerHTML+='<div class="ai-msg-row user"><div class="ai-icon" style="background:var(--accentbg);"><i class="fa-solid fa-user" style="color:var(--accent2);font-size:11px;"></i></div><div class="ai-bubble">'+esc(txt)+'</div></div>';
+  c.innerHTML+='<div class="ai-msg-row" id="ai-typing"><div class="ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div></div>';
+  c.scrollTop=c.scrollHeight;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1024,
+        system:'You are a helpful private AI assistant for '+(CUD&&CUD.name?CUD.name:'a team member')+' at Bigben Group EMR (Equipment Maintenance & Rentals), Motorpool Division, Dampol 1st, Pulilan, Bulacan, Philippines. Department: '+(CUD&&CUD.dept?CUD.dept:'EMR')+'. Help with: drafting memos and reports, Filipino/English translation, fleet management questions, overtime and cost computations, DOLE labor code questions, and general operational queries. Be concise and professional. You can respond in Filipino or English depending on what the user uses.',
+        messages:aiHist
+      })
+    });
+    if(!res.ok){const err=await res.json();throw new Error(err.error&&err.error.message?err.error.message:'API error '+res.status);}
+    const data=await res.json();
+    const reply=data.content&&data.content[0]?data.content[0].text:'Sorry, no response received.';
+    aiHist.push({role:'assistant',content:reply});
+    const tr=document.getElementById('ai-typing');if(tr)tr.remove();
+    c.innerHTML+='<div class="ai-msg-row"><div class="ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ai-bubble" style="white-space:pre-wrap;">'+esc(reply)+'</div></div>';
+    c.scrollTop=c.scrollHeight;
+  }catch(e){
+    const tr=document.getElementById('ai-typing');if(tr)tr.remove();
+    c.innerHTML+='<div class="ai-msg-row"><div class="ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ai-bubble" style="color:var(--red);">Error: '+esc(e.message)+'. Please try again.</div></div>';
+    aiHist.pop();// remove failed message from history
+  }
+};
+window.clearAiChat=function(){
+  aiHist=[];
+  const c=document.getElementById('ai-messages');
+  if(c)c.innerHTML='<div class="ai-msg-row"><div class="ai-icon"><i class="fa-solid fa-robot"></i></div><div class="ai-bubble">Chat cleared. How can I help you?</div></div>';
+};
+
+// ── PERSONNEL ──
+async function loadPersonnel(){
+  try{
+    const snap=await db.collection('users'.get());
+    allUsers=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderPersonnel();
+  }catch(e){}
+}
+window.renderPersonnel=function(){
+  const srch=(document.getElementById('personnel-search')&&document.getElementById('personnel-search').value||'').toLowerCase();
+  const users=(allUsers||[]).filter(function(u){return!srch||(u.name||'').toLowerCase().includes(srch)||(u.dept||'').toLowerCase().includes(srch);});
+  const cols=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#14b8a6','#ef4444'];
+  const c=document.getElementById('personnel-grid');if(!c)return;
+  if(!users.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No personnel found.</div>';return;}
+  c.innerHTML=users.map(function(u,i){
+    const ini=(u.name||'?').split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+    const online=!!onlineU[u.id];
+    const col=cols[i%cols.length];
+    return '<div class="person-card">'+
+      '<div class="person-avatar" style="background:'+col+'22;color:'+col+';">'+ini+'</div>'+
+      '<div class="person-name">'+esc(u.name||'Unknown')+'</div>'+
+      '<div class="person-role">'+(u.role==='superadmin'?'Super Admin':'Member')+'</div>'+
+      '<div class="person-dept">'+esc(u.dept||'')+'</div>'+
+      (u.status?'<div class="person-status-txt">'+esc(u.status)+'</div>':'')+
+      '<div class="person-online"><div class="person-online-dot" style="background:'+(online?'var(--green)':'var(--text3)')+'"></div>'+(online?'Online':'Offline')+'</div></div>';
+  }).join('');
+};
+
+// ── DUTY ROSTER ──
+async function loadRoster(){
+  try{
+    const snap=await db.collection('roster'.get());
+    const entries=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    const batchSnap=await db.doc('settings','custom_batches'.get());
+    customBatches=batchSnap.exists&&batchSnap.data().list?batchSnap.data().list:[];
+    const c=document.getElementById('roster-container');if(!c)return;
+    if(!entries.length){c.innerHTML='<div style="color:var(--text2);font-size:12px;">No roster entries.</div>';return;}
+    const defaultBatches={A:'Batch A — Monday to Wednesday',B:'Batch B — Thursday to Saturday',Chief:'Section Chiefs — Monday to Saturday'};
+    const allBatches=Object.assign({},defaultBatches);
+    customBatches.forEach(function(b){allBatches[b.name]=b.name+' — '+b.sched;});
+    // Also populate roster-batch-input
+    const sel=document.getElementById('roster-batch-input');
+    if(sel){
+      const existing=['A','B','Chief'];
+      customBatches.forEach(function(b){
+        if(!existing.includes(b.name)){const opt=document.createElement('option');opt.value=b.name;opt.textContent=b.name;sel.appendChild(opt);}
+      });
+    }
+    c.innerHTML=Object.entries(allBatches).map(function(kv){
+      const batch=kv[0],label=kv[1];
+      const members=entries.filter(function(e){return(e.batch||'A')===batch;});
+      if(!members.length)return'';
+      return '<div class="card"><div class="card-header"><span class="card-title"><i class="fa-solid fa-users"></i> '+esc(label)+'</span></div><div class="card-body">'+
+        '<table class="roster-table"><thead><tr><th>Name</th><th>Role</th><th>Status</th>'+(isAdmin?'<th></th>':'')+'</tr></thead><tbody>'+
+        members.map(function(m){
+          return '<tr><td style="font-weight:500;">'+esc(m.name||'')+'</td><td style="color:var(--text2);">'+esc(m.role||'')+'</td>'+
+            '<td><span class="badge '+(m.status==='active'?'badge-green':m.status==='leave'?'badge-amber':'badge-red')+'">'+esc(m.status||'active')+'</span></td>'+
+            (isAdmin?'<td><i class="fa-solid fa-trash" style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="deleteRoster(\''+m.id+'\')"></i></td>':'')+
+            '</tr>';
+        }).join('')+
+        '</tbody></table></div></div>';
+    }).join('');
+  }catch(e){}
+}
+window.openRosterModal=function(){document.getElementById('roster-name-input').value='';document.getElementById('roster-role-input').value='';document.getElementById('roster-modal').classList.add('open');};
+window.saveRosterEntry=async function(){
+  const data={name:document.getElementById('roster-name-input').value.trim(),role:document.getElementById('roster-role-input').value.trim(),batch:document.getElementById('roster-batch-input').value,status:document.getElementById('roster-status-input').value,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!data.name)return alert('Name required.');
+  try{await db.collection('roster').add(data);closeModal('roster-modal');loadRoster();}
+  catch(e){alert('Failed: '+e.message);}
+};
+window.deleteRoster=async function(id){
+  if(!confirm('Remove from roster?'))return;
+  try{await db.doc('roster',id.delete());loadRoster();}catch(e){}
+};
+window.openBatchModal=function(){document.getElementById('batch-name-input').value='';document.getElementById('batch-sched-input').value='';document.getElementById('batch-modal').classList.add('open');};
+window.saveCustomBatch=async function(){
+  const name=document.getElementById('batch-name-input').value.trim();
+  const sched=document.getElementById('batch-sched-input').value.trim();
+  if(!name)return alert('Batch name required.');
+  const batches=customBatches.concat([{name:name,sched:sched||'Custom schedule'}]);
+  try{
+    await db.doc('settings'.set('custom_batches'),{list:batches});
+    closeModal('batch-modal');loadRoster();
+  }catch(e){alert('Failed: '+e.message);}
+};
+
+// ── ALERTS ──
+function listenAlertsCount(){
+  db.collection('alerts').onSnapshot(function(snap){
+    const ct=snap.docs.length;
+    const b=document.getElementById('alerts-badge');if(b){b.textContent=ct;b.style.display=ct>0?'inline':'none';}
+    // notify critical
+    if(notifSettings.alert){
+      snap.docChanges&&snap.docChanges().forEach(function(ch){
+        if(ch.type==='added'&&ch.doc.data().severity==='critical'){
+          addNotif('⚠️ Critical alert: '+ch.doc.data().title,'alert');
+        }
+      });
+    }
+  });
+}
+async function loadAlerts(){
+  try{
+    const snap=await db.collection('alerts'.get());
+    const alerts=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());}).sort(function(a,b){return a.severity==='critical'?-1:1;});
+    const c=document.getElementById('alerts-container');const dc=document.getElementById('dash-alerts-list');
+    if(!alerts.length){
+      if(c)c.innerHTML='<div style="color:var(--green2);font-size:12px;"><i class="fa-solid fa-circle-check"></i> No alerts. All clear.</div>';
+      if(dc)dc.innerHTML='<div style="color:var(--green2);font-size:12px;"><i class="fa-solid fa-circle-check"></i> All clear.</div>';
+      return;
+    }
+    const html=alerts.map(function(a){
+      const dl=a.dueDate?Math.ceil((new Date(a.dueDate)-new Date())/(1000*60*60*24)):null;
+      return '<div class="alert-item '+a.severity+'">'+
+        '<i class="fa-solid fa-triangle-exclamation alert-icon" style="color:'+(a.severity==='critical'?'var(--red)':'var(--amber)')+'"></i>'+
+        '<div class="alert-text"><div class="alert-title">'+esc(a.title||'')+'</div><div class="alert-sub">'+esc(a.sub||'')+'</div></div>'+
+        (dl!==null?'<div style="font-size:11px;font-weight:500;color:'+(dl<=7?'var(--red)':'var(--amber)')+';">'+(dl>=0?dl+' days':'Overdue')+'</div>':'')+
+        (isAdmin?'<i class="fa-solid fa-trash" style="font-size:12px;color:var(--text3);cursor:pointer;margin-left:7px;" onclick="deleteAlert(\''+a.id+'\')"></i>':'')+
+        '</div>';
+    }).join('');
+    if(c)c.innerHTML=html;
+    if(dc)dc.innerHTML=alerts.slice(0,3).map(function(a){
+      return '<div style="padding:5px 0;border-bottom:1px solid var(--border);"><div style="font-size:12px;font-weight:500;color:'+(a.severity==='critical'?'var(--red)':'var(--amber)')+';">'+esc(a.title||'')+'</div><div style="font-size:11px;color:var(--text2);">'+esc(a.sub||'')+'</div></div>';
+    }).join('');
+  }catch(e){}
+}
+window.openAlertModal=function(){document.getElementById('alert-title-input').value='';document.getElementById('alert-sub-input').value='';document.getElementById('alert-date-input').value=new Date().toISOString().split('T')[0];document.getElementById('alert-modal').classList.add('open');};
+window.saveAlert=async function(){
+  const data={title:document.getElementById('alert-title-input').value.trim(),sub:document.getElementById('alert-sub-input').value.trim(),severity:document.getElementById('alert-sev-input').value,dueDate:document.getElementById('alert-date-input').value,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(!data.title)return alert('Title required.');
+  try{await db.collection('alerts').add(data);closeModal('alert-modal');loadAlerts();}
+  catch(e){alert('Failed: '+e.message);}
+};
+window.deleteAlert=async function(id){
+  if(!confirm('Remove alert?'))return;
+  try{await db.doc('alerts',id.delete());loadAlerts();}catch(e){}
+};
+
+// ── ADMIN ──
+async function loadAdminUsers(){
+  if(!isAdmin)return;
+  try{
+    const snap=await db.collection('users'.get());
+    const users=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    const cols=['#3b82f6','#10b981','#8b5cf6','#f59e0b'];
+    const c=document.getElementById('admin-users-list');if(!c)return;
+    c.innerHTML=users.map(function(u,i){
+      const ini=(u.name||'?').split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+      return '<div class="user-row">'+
+        '<div class="user-row-avatar" style="background:'+cols[i%cols.length]+'22;color:'+cols[i%cols.length]+';">'+ini+'</div>'+
+        '<div class="user-row-info"><div class="user-row-name">'+esc(u.name||'Unknown')+'</div><div class="user-row-email">'+esc(u.email||'')+' · '+esc(u.dept||'')+'</div></div>'+
+        '<div class="user-row-actions">'+
+        '<select class="form-input" style="padding:4px 7px;font-size:11px;" onchange="changeRole(\''+u.id+'\',this.value)">'+
+        '<option value="member"'+(u.role!=='superadmin'?' selected':'')+'>Member</option>'+
+        '<option value="superadmin"'+(u.role==='superadmin'?' selected':'')+'>Super Admin</option></select>'+
+        (u.id!==CU.uid?'<button class="btn btn-red btn-sm" onclick="removeUser(\''+u.id+'\')"><i class="fa-solid fa-trash"></i></button>':'')+
+        '</div></div>';
+    }).join('');
+  }catch(e){}
+}
+window.changeRole=async function(uid,role){
+  try{await db.doc('users'.update(uid),{role:role});setTimeout(loadAdminUsers,500);}
+  catch(e){alert('Failed: '+e.message);}
+};
+window.removeUser=async function(uid){
+  if(!confirm('Remove this user?'))return;
+  try{await db.doc('users',uid.delete());loadAdminUsers();}catch(e){alert('Failed: '+e.message);}
+};
+window.generateInviteLink=async function(){
+  if(!CU)return;
+  const code='INV-'+Math.random().toString(36).substring(2,10).toUpperCase();
+  const expires=new Date(Date.now()+24*60*60*1000);
+  try{
+    await db.doc('invites'.set(code),{used:false,createdBy:CU.uid,expiresAt:expires,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    const url=window.location.href.split('?')[0]+'?invite='+code;
+    const c=document.getElementById('invite-link-result');
+    if(c)c.innerHTML='<div class="invite-link-box">'+url+'</div>'+
+      '<div style="font-size:11px;color:var(--text3);margin-top:6px;">Valid 24 hours · Single use</div>'+
+      '<button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="navigator.clipboard.writeText(\''+url+'\').then(function(){alert(\'Copied!\');}).catch(function(){prompt(\'Copy this link:\',\''+url+'\');})">'+
+      '<i class="fa-solid fa-copy"></i> Copy Link</button>';
+  }catch(e){alert('Failed: '+e.message);}
+};
+async function loadCategories(){
+  if(!isAdmin)return;
+  try{
+    const snap=await db.doc('settings','memo_categories'.get());
+    const cats=snap.data()&&snap.data().list?snap.data().list:[];
+    const c=document.getElementById('cat-list');
+    if(c)c.innerHTML=cats.map(function(cat,i){
+      return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">'+
+        '<span class="badge badge-blue">'+esc(cat)+'</span>'+
+        '<i class="fa-solid fa-trash" style="font-size:11px;color:var(--text3);cursor:pointer;margin-left:auto;" onclick="removeCat('+i+')"></i></div>';
+    }).join('');
+    const sel=document.getElementById('memo-cat-input');
+    if(sel){
+      const existing=['general','urgent','info','hr','safety','operations'];
+      cats.forEach(function(cat){
+        if(!existing.includes(cat.toLowerCase())){
+          const opt=document.createElement('option');opt.value=cat.toLowerCase();opt.textContent=cat;sel.appendChild(opt);
+        }
+      });
+    }
+  }catch(e){}
+}
+window.addMemoCategory=async function(){
+  const inp=document.getElementById('new-cat-input');const val=inp&&inp.value.trim();if(!val)return;
+  try{
+    const snap=await db.doc('settings','memo_categories'.get());
+    const cats=snap.data()&&snap.data().list?snap.data().list.slice():[];
+    if(!cats.includes(val))cats.push(val);
+    await db.doc('settings'.set('memo_categories'),{list:cats});
+    inp.value='';loadCategories();
+  }catch(e){}
+};
+window.removeCat=async function(idx){
+  try{
+    const snap=await db.doc('settings','memo_categories'.get());
+    const cats=snap.data()&&snap.data().list?snap.data().list.slice():[];
+    cats.splice(idx,1);await db.doc('settings'.set('memo_categories'),{list:cats});loadCategories();
+  }catch(e){}
+};
+
+// ── NOTIFICATIONS ──
+function addNotif(msg,type){
+  if(type&&!notifSettings[type])return;
+  const notifs=JSON.parse(localStorage.getItem('emr_notifs')||'[]');
+  notifs.unshift({msg:msg,time:new Date().toISOString(),read:false});
+  localStorage.setItem('emr_notifs',JSON.stringify(notifs.slice(0,30)));
+  renderNotifs();
+  // Browser notification
+  if(Notification&&Notification.permission==='granted'){
+    try{new Notification('EMR Portal',{body:msg,icon:'https://via.placeholder.com/64x64/3b82f6/ffffff?text=EMR'});}catch(e){}
+  }else if(Notification&&Notification.permission!=='denied'){
+    Notification.requestPermission();
+  }
+}
+function renderNotifs(){
+  const notifs=JSON.parse(localStorage.getItem('emr_notifs')||'[]');
+  const unread=notifs.filter(function(n){return!n.read;}).length;
+  const dot=document.getElementById('notif-dot');if(dot)dot.style.display=unread?'block':'none';
+  const b=document.getElementById('chat-badge');if(b){const chatNotifs=notifs.filter(function(n){return!n.read&&n.msg.startsWith('💬');}).length;b.textContent=chatNotifs;b.style.display=chatNotifs>0?'inline':'none';}
+  const list=document.getElementById('notif-list');if(!list)return;
+  if(!notifs.length){list.innerHTML='<div style="padding:12px 14px;font-size:12px;color:var(--text2);">No notifications.</div>';return;}
+  list.innerHTML=notifs.slice(0,15).map(function(n){
+    return '<div class="notif-item'+(n.read?'':' unread')+'"><div class="notif-item-title">'+esc(n.msg)+'</div><div class="notif-item-sub">'+fmtTime(new Date(n.time))+'</div></div>';
+  }).join('');
+}
+window.toggleNotifPanel=function(){document.getElementById('notif-panel').classList.toggle('open');renderNotifs();};
+window.markAllRead=function(){
+  const notifs=JSON.parse(localStorage.getItem('emr_notifs')||'[]');
+  notifs.forEach(function(n){n.read=true;});
+  localStorage.setItem('emr_notifs',JSON.stringify(notifs));
+  renderNotifs();document.getElementById('notif-panel').classList.remove('open');
+};
+
+// ── PROFILE ──
+function loadProfile(){
+  const nm=CUD&&CUD.name?CUD.name:(CU&&CU.displayName?CU.displayName:'User');
+  const em=CU&&CU.email?CU.email:'';
+  const ini=nm.split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+  const pa=document.getElementById('profile-avatar-big');if(pa)pa.textContent=ini;
+  const pn=document.getElementById('profile-name-big');if(pn)pn.textContent=nm;
+  const pe=document.getElementById('profile-email-text');if(pe)pe.textContent=em;
+  const ps=document.getElementById('profile-status');if(ps)ps.value=CUD&&CUD.status?CUD.status:'';
+  const pni=document.getElementById('profile-name-input');if(pni)pni.value=nm;
+  const pdi=document.getElementById('profile-dept-input');if(pdi)pdi.value=CUD&&CUD.dept?CUD.dept:'Motorpool';
+}
+window.saveProfile=async function(){
+  const nm=document.getElementById('profile-name-input').value.trim();
+  const dp=document.getElementById('profile-dept-input').value;
+  if(!nm)return alert('Name required.');if(!CU)return;
+  try{
+    await db.doc('users'.update(CU.uid),{name:nm,dept:dp});
+  await CU.updateProfile({displayName:nm});
+    if(CUD){CUD.name=nm;CUD.dept=dp;}
+    const ta=document.getElementById('topbar-avatar');if(ta)ta.textContent=nm.split(' ').map(function(n){return n[0]||'';}).join('').substring(0,2).toUpperCase();
+    const sn=document.getElementById('sidebar-name');if(sn)sn.textContent=nm;
+    loadProfile();alert('Profile saved!');
+  }catch(e){alert('Failed: '+e.message);}
+};
+window.saveStatus=async function(){
+  if(!CU)return;
+  const st=document.getElementById('profile-status').value.trim();
+  try{await db.doc('users'.update(CU.uid),{status:st});if(CUD)CUD.status=st;}catch(e){}
+};
+
+// ── CALCULATORS ──
+window.switchCalc=function(id,el){
+  document.querySelectorAll('.calc-panel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.calc-tab').forEach(function(t){t.classList.remove('active');});
+  const cp=document.getElementById('calc-'+id);if(cp)cp.classList.add('active');el.classList.add('active');
+};
+window.calcFn=function(t,v){
+  const dv=document.getElementById('calc-val'),ex=document.getElementById('calc-expr');const s=calcS;
+  if(t==='clear'){s.val='0';s.expr='';s.op=null;s.prev=null;s.newNum=true;}
+  else if(t==='num'){s.val=s.newNum?v:(s.val==='0'?v:s.val+v);s.newNum=false;}
+  else if(t==='dot'){if(s.newNum){s.val='0.';s.newNum=false;}else if(!s.val.includes('.'))s.val+='.';}
+  else if(t==='sign'){s.val=String(-parseFloat(s.val)||0);}
+  else if(t==='pct'){s.val=String(parseFloat(s.val)/100);}
+  else if(t==='op'){s.prev=parseFloat(s.val);s.op=v;s.expr=s.val+' '+v;s.newNum=true;}
+  else if(t==='eq'){
+    if(s.op&&s.prev!==null){
+      let r=0;const a=s.prev,b=parseFloat(s.val);
+      if(s.op==='/')r=b!==0?a/b:0;else if(s.op==='*')r=a*b;else if(s.op==='-')r=a-b;else r=a+b;
+      s.expr=s.expr+' '+s.val+' =';s.val=String(Math.round(r*1e10)/1e10);s.op=null;s.newNum=true;
+    }
+  }
+  if(dv)dv.textContent=parseFloat(s.val).toLocaleString('en-PH',{maximumFractionDigits:8});if(ex)ex.textContent=s.expr;
+};
+window.calcFuel=function(){
+  const km=parseFloat(document.getElementById('fuel-km').value)||0;
+  const cn=parseFloat(document.getElementById('fuel-cons').value)||0;
+  const pr=parseFloat(document.getElementById('fuel-price').value)||0;
+  const r=document.getElementById('fuel-result');
+  if(km&&cn&&pr){
+    const lt=km/cn,cost=lt*pr;
+    document.getElementById('fuel-result-val').textContent='₱'+cost.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('fuel-result-liters').textContent=lt.toFixed(2)+' liters needed · '+Math.round(km/cn*10)/10+' L';
+    if(r)r.style.display='block';
+  }else if(r)r.style.display='none';
+};
+window.calcOT=function(){
+  const rt=parseFloat(document.getElementById('ot-rate').value)||0;
+  const hr=parseFloat(document.getElementById('ot-hours').value)||0;
+  const ml=parseFloat(document.getElementById('ot-type').value)||1.25;
+  const nsd=parseFloat(document.getElementById('ot-nsd').value)||0;
+  const r=document.getElementById('ot-result');
+  if(rt&&hr){
+    const hly=rt/8;
+    const otBase=hly*ml*hr;
+    const nsdAmount=otBase*nsd;
+    const total=otBase+nsdAmount;
+    document.getElementById('ot-result-val').textContent='₱'+total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('ot-result-sub').textContent='Hourly: ₱'+hly.toFixed(2)+' × '+ml+' × '+hr+'h'+(nsd>0?' + '+Math.round(nsd*100)+'% NSD':'');
+    if(r)r.style.display='block';
+  }else if(r)r.style.display='none';
+};
+const cvU={length:{Kilometer:1,Meter:1000,Centimeter:100000,Mile:0.621371,Yard:1093.61,Foot:3280.84,Inch:39370.1},weight:{Kilogram:1,Gram:1000,Pound:2.20462,Ounce:35.274,Metric_Ton:0.001},volume:{Liter:1,Milliliter:1000,Gallon_US:0.264172,Fluid_Oz:33.814,Cup:4.22675},temp:{Celsius:null,Fahrenheit:null,Kelvin:null}};
+window.updateConvUnits=function(){
+  const cat=document.getElementById('conv-cat')&&document.getElementById('conv-cat').value||'length';
+  const units=Object.keys(cvU[cat]||{});
+  ['conv-from','conv-to'].forEach(function(id,i){const sel=document.getElementById(id);if(!sel)return;sel.innerHTML=units.map(function(u){return'<option value="'+u+'">'+u.replace(/_/g,' ')+'</option>';}).join('');sel.selectedIndex=i;});
+  doConvert();
+};
+window.doConvert=function(){
+  const cat=document.getElementById('conv-cat')&&document.getElementById('conv-cat').value;
+  const from=document.getElementById('conv-from')&&document.getElementById('conv-from').value;
+  const to=document.getElementById('conv-to')&&document.getElementById('conv-to').value;
+  const val=parseFloat(document.getElementById('conv-val')&&document.getElementById('conv-val').value)||0;
+  const r=document.getElementById('conv-result');if(!val){if(r)r.style.display='none';return;}
+  let result=val;
+  if(cat==='temp'){
+    if(from==='Celsius'&&to==='Fahrenheit')result=val*9/5+32;else if(from==='Celsius'&&to==='Kelvin')result=val+273.15;
+    else if(from==='Fahrenheit'&&to==='Celsius')result=(val-32)*5/9;else if(from==='Fahrenheit'&&to==='Kelvin')result=(val-32)*5/9+273.15;
+    else if(from==='Kelvin'&&to==='Celsius')result=val-273.15;else if(from==='Kelvin'&&to==='Fahrenheit')result=(val-273.15)*9/5+32;
+  }else{const us=cvU[cat];if(us&&us[from]&&us[to])result=(val/us[from])*us[to];}
+  const rv=document.getElementById('conv-result-val');if(rv)rv.textContent=(Math.round(result*1e6)/1e6).toLocaleString('en-PH',{maximumFractionDigits:6})+' '+(to||'').replace(/_/g,' ');
+  if(r)r.style.display='block';
+};
+window.calcDate=function(){
+  const f=document.getElementById('date-from')&&document.getElementById('date-from').value;
+  const t=document.getElementById('date-to')&&document.getElementById('date-to').value;
+  const r=document.getElementById('date-result');if(!f||!t){if(r)r.style.display='none';return;}
+  const diff=Math.abs(new Date(t)-new Date(f));
+  const days=Math.ceil(diff/(1000*60*60*24));
+  const weeks=Math.floor(days/7),months=Math.floor(days/30);
+  const rv=document.getElementById('date-result-val');if(rv)rv.textContent=days+' day'+(days!==1?'s':'');
+  const rs=document.getElementById('date-result-sub');if(rs)rs.textContent=weeks+' week'+(weeks!==1?'s':'')+' · approx. '+months+' month'+(months!==1?'s':'');
+  if(r)r.style.display='block';
+};
+
+// ── MODAL HELPERS ──
+window.closeModal=function(id){const el=document.getElementById(id);if(el)el.classList.remove('open');};
+document.querySelectorAll('.overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
+
+// ── INVITE FROM URL ──
+const urlP=new URLSearchParams(window.location.search);
+const invCode=urlP.get('invite');
+if(invCode){
+  window.switchAuthTab('register');
+  setTimeout(function(){const el=document.getElementById('reg-invite');if(el)el.value=invCode;},150);
+}
+
+// ── UTILS ──
+function fmtDate(d){return d.toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});}
+function fmtTime(d){return d.toLocaleTimeString('en-PH',{hour:'numeric',minute:'2-digit',hour12:true});}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ── CLOSE NOTIF PANEL ON OUTSIDE CLICK ──
+document.addEventListener('click',function(e){
+  const panel=document.getElementById('notif-panel');const btn=document.getElementById('notif-btn');
+  if(panel&&panel.classList.contains('open')&&!panel.contains(e.target)&&!btn.contains(e.target)){panel.classList.remove('open');}
+});
+
+renderNotifs();
+</script>
+</body>
+</html>
